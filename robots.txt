@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://leasingru.ru/sitemap.xml
