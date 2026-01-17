@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Базовые защитные мета-теги -->
     <meta name="referrer" content="strict-origin-when-cross-origin">
     
     <title>Лизинговый калькулятор</title>
@@ -11,12 +10,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     
     <style>
-        /* Основные стили без изменений */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
         body { background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%); color: #333; line-height: 1.6; padding: 15px; min-height: 100vh; }
         .container { max-width: 1100px; margin: 0 auto; background: white; border-radius: 18px; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08); overflow: hidden; }
         
-        /* Скрытые защитные поля */
+        /* Защитные поля */
         .honeypot-field {
             display: none !important;
             position: absolute !important;
@@ -26,12 +24,56 @@
             width: 0 !important;
         }
         
-        /* Остальные стили без изменений */
+        /* Верхние иконки */
+        .header-icons {
+            position: absolute;
+            right: 20px;
+            top: 25px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        
+        .header-icon-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-size: 1.3rem;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .header-icon-link:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        @media (max-width: 768px) {
+            .header-icons {
+                position: static;
+                justify-content: center;
+                margin-top: 15px;
+            }
+            .header-icon-link {
+                width: 48px;
+                height: 48px;
+                font-size: 1.4rem;
+            }
+        }
+        
         header { 
             background: linear-gradient(to right, #1a3a5f, #2c5282); 
             color: white; 
             padding: 25px 20px; 
             text-align: center;
+            position: relative;
         }
         header h1 { font-size: 1.8rem; margin-bottom: 8px; }
         header p { opacity: 0.9; font-size: 1rem; }
@@ -41,10 +83,24 @@
             .calculator-wrapper { grid-template-columns: 1fr; gap: 20px; }
         }
         .input-section, .result-section { background: #f8fafc; padding: 22px; border-radius: 14px; border: 1px solid #e2e8f0; }
-        .section-title { font-size: 1.2rem; color: #1a3a5f; margin-bottom: 22px; padding-bottom: 8px; border-bottom: 2px solid #e2e8f0; display: flex; align-items: center; gap: 8px; }
-        .input-group { margin-bottom: 22px; }
-        .input-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-        .input-header label { font-weight: 600; color: #2d3748; font-size: 0.95rem; }
+        
+        /* Уменьшаем шрифты разделов */
+        .section-title { 
+            font-size: 1rem; /* Было 1.2rem - уменьшили */
+            color: #1a3a5f; 
+            margin-bottom: 18px; /* Уменьшили отступ */
+            padding-bottom: 6px; /* Уменьшили отступ */
+            border-bottom: 2px solid #e2e8f0; 
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+        }
+        
+        .input-group { margin-bottom: 18px; } /* Уменьшили отступ */
+        .input-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; } /* Уменьшили отступ */
+        .input-header label { font-weight: 600; color: #2d3748; font-size: 0.9rem; } /* Уменьшили шрифт */
+        
+        /* Убираем синий выделенный текст - делаем простой */
         .input-header .value-container { 
             display: flex;
             flex-direction: column;
@@ -52,35 +108,36 @@
             gap: 2px;
         }
         .input-header .value { 
-            font-weight: 700; 
-            color: #1a3a5f; 
-            background: #e2e8f0; 
-            padding: 3px 12px; 
-            border-radius: 10px; 
+            font-weight: 600; /* Уменьшили жирность */
+            color: #4a5568; /* Изменили цвет с синего на серый */
+            background: transparent; /* Убрали фон */
+            padding: 2px 0; /* Убрали отступы */
+            border-radius: 0; /* Убрали скругления */
             font-size: 0.9rem; 
-            min-width: 55px; 
-            text-align: center;
-            min-height: 24px;
+            min-width: auto; /* Убрали минимальную ширину */
+            text-align: right;
+            min-height: auto;
         }
         .input-header .value-rub { 
-            font-weight: 600; 
-            color: #4a5568; 
-            font-size: 0.75rem; 
+            font-weight: 500; /* Уменьшили жирность */
+            color: #718096; /* Более светлый серый */
+            font-size: 0.7rem; /* Уменьшили шрифт */
             text-align: right;
-            padding: 1px 5px;
+            padding: 0;
         }
+        
         .range-slider { width: 100%; height: 8px; -webkit-appearance: none; background: #cbd5e0; border-radius: 5px; outline: none; margin-bottom: 5px; }
         .range-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; background: #2c5282; border-radius: 50%; cursor: pointer; border: 3px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
-        .range-limits { display: flex; justify-content: space-between; margin-top: 5px; font-size: 0.8rem; color: #718096; }
+        .range-limits { display: flex; justify-content: space-between; margin-top: 5px; font-size: 0.75rem; color: #718096; } /* Уменьшили шрифт */
         
-        .input-with-controls { display: flex; align-items: center; gap: 15px; }
+        .input-with-controls { display: flex; align-items: center; gap: 12px; } /* Уменьшили отступ */
         .money-input { 
             width: 100%; 
             max-width: 200px;
-            padding: 12px 15px; 
+            padding: 10px 12px; /* Уменьшили отступы */
             border: 1px solid #cbd5e0; 
             border-radius: 10px; 
-            font-size: 1rem; 
+            font-size: 0.95rem; /* Уменьшили шрифт */
             font-weight: 600;
             color: #1a3a5f;
             text-align: right;
@@ -98,26 +155,27 @@
             font-weight: 600; 
             color: #4a5568; 
             white-space: nowrap;
-            font-size: 0.95rem;
+            font-size: 0.9rem; /* Уменьшили шрифт */
         }
         
-        .result-box { background: white; border-radius: 12px; padding: 18px; margin-bottom: 18px; border-left: 5px solid #2c5282; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.03); }
+        /* Уменьшаем шрифты в результатах */
+        .result-box { background: white; border-radius: 12px; padding: 16px; margin-bottom: 16px; border-left: 5px solid #2c5282; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.03); }
         .result-main { border-left-color: #e67e22; background: linear-gradient(to right, #fffaf0, #fff5e6); }
-        .result-label { font-size: 0.9rem; color: #4a5568; margin-bottom: 5px; }
-        .result-value { font-size: 1.7rem; font-weight: 800; color: #1a3a5f; }
-        .result-note { font-size: 0.8rem; color: #e67e22; margin-top: 8px; font-style: italic; }
-        .result-sub { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 22px; }
-        .disclaimer { font-size: 0.75rem; color: #718096; text-align: center; margin-top: 25px; padding: 12px; border-top: 1px solid #e2e8f0; line-height: 1.5; }
-        .info-icon { color: #2c5282; margin-left: 5px; cursor: help; font-size: 0.9rem; }
-        .contact-form { margin-top: 25px; }
-        .form-group { margin-bottom: 18px; }
-        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: #2d3748; font-size: 0.95rem; }
+        .result-label { font-size: 0.85rem; color: #4a5568; margin-bottom: 4px; } /* Уменьшили шрифт */
+        .result-value { font-size: 1.4rem; font-weight: 800; color: #1a3a5f; } /* Было 1.7rem - уменьшили */
+        .result-note { font-size: 0.75rem; color: #e67e22; margin-top: 6px; font-style: italic; } /* Уменьшили шрифт */
+        .result-sub { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 18px; } /* Уменьшили отступы */
+        .disclaimer { font-size: 0.7rem; color: #718096; text-align: center; margin-top: 20px; padding: 10px; border-top: 1px solid #e2e8f0; line-height: 1.5; } /* Уменьшили шрифт */
+        .info-icon { color: #2c5282; margin-left: 5px; cursor: help; font-size: 0.85rem; } /* Уменьшили размер */
+        .contact-form { margin-top: 20px; } /* Уменьшили отступ */
+        .form-group { margin-bottom: 16px; } /* Уменьшили отступ */
+        .form-group label { display: block; margin-bottom: 6px; font-weight: 600; color: #2d3748; font-size: 0.9rem; } /* Уменьшили шрифт */
         .form-group input { 
             width: 100%; 
-            padding: 12px 15px; 
+            padding: 10px 12px; /* Уменьшили отступы */
             border: 1px solid #cbd5e0; 
             border-radius: 10px; 
-            font-size: 1rem; 
+            font-size: 0.95rem; /* Уменьшили шрифт */
             transition: all 0.3s ease;
         }
         .form-group input:focus { 
@@ -125,14 +183,69 @@
             border-color: #2c5282; 
             box-shadow: 0 0 0 3px rgba(44, 82, 130, 0.1); 
         }
-        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .form-optional { color: #718096; font-size: 0.85rem; }
+        
+        /* Стиль для поля телефона - скрываем скобку до заполнения */
+        .phone-input-container {
+            position: relative;
+        }
+        .phone-prefix {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #718096;
+            font-size: 0.95rem;
+            pointer-events: none;
+        }
+        .phone-input {
+            padding-left: 38px !important; /* Отступ для префикса */
+        }
+        
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; } /* Уменьшили отступ */
+        .form-optional { color: #718096; font-size: 0.8rem; } /* Уменьшили шрифт */
+        
+        /* Стили для чекбокса согласия */
+        .checkbox-group {
+            margin: 20px 0;
+            padding: 12px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .checkbox-container {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+        
+        .checkbox-container input[type="checkbox"] {
+            margin-top: 3px;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        
+        .checkbox-label {
+            font-size: 0.85rem;
+            color: #4a5568;
+            line-height: 1.4;
+        }
+        
+        .checkbox-label a {
+            color: #2c5282;
+            text-decoration: none;
+        }
+        
+        .checkbox-label a:hover {
+            text-decoration: underline;
+        }
         
         .tax-savings-compact {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-top: 18px;
+            gap: 10px;
+            margin-top: 16px;
         }
         @media (max-width: 480px) {
             .tax-savings-compact { grid-template-columns: 1fr; }
@@ -140,56 +253,57 @@
         .tax-savings-item {
             background: white;
             border-radius: 10px;
-            padding: 12px;
+            padding: 10px;
             border: 1px solid #e2e8f0;
             text-align: center;
         }
         .tax-savings-label {
-            font-size: 0.75rem;
+            font-size: 0.7rem; /* Уменьшили шрифт */
             color: #4a5568;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             line-height: 1.3;
-            height: 2.2em;
+            height: 2em;
             display: flex;
             align-items: center;
             justify-content: center;
         }
         .tax-savings-value {
-            font-size: 1.1rem;
+            font-size: 1rem; /* Было 1.1rem - уменьшили */
             font-weight: 700;
             color: #1a3a5f;
         }
         
         .result-footer {
-            margin-top: 22px;
-            padding-top: 18px;
+            margin-top: 18px;
+            padding-top: 16px;
             border-top: 1px solid #e2e8f0;
         }
         .total-contract {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 14px;
+            padding: 12px;
             background: #f0f7ff;
             border-radius: 10px;
             border: 1px solid #c3dafe;
         }
         .total-label {
-            font-size: 0.95rem;
+            font-size: 0.9rem; /* Уменьшили шрифт */
             font-weight: 600;
             color: #2d3748;
         }
         .total-value {
-            font-size: 1.3rem;
+            font-size: 1.1rem; /* Было 1.3rem - уменьшили */
             font-weight: 800;
             color: #1a3a5f;
         }
         
+        /* Обновленные стили для кнопок формы */
         .form-actions {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-top: 25px;
+            gap: 10px;
+            margin-top: 20px;
         }
         @media (max-width: 480px) {
             .form-actions { grid-template-columns: 1fr; }
@@ -199,17 +313,17 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
-            padding: 14px;
+            padding: 12px;
             border: none;
             border-radius: 10px;
-            font-size: 0.95rem;
+            font-size: 0.9rem; /* Уменьшили шрифт */
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
             text-decoration: none;
             text-align: center;
         }
-        .telegram-form-btn {
+        .manager-form-btn {
             background: linear-gradient(to right, #0088cc, #0077b5);
             color: white;
         }
@@ -223,17 +337,17 @@
         }
         
         .open-schedule-btn-container {
-            margin-top: 22px;
+            margin-top: 18px;
         }
         .open-schedule-btn {
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
-            padding: 14px;
+            padding: 12px;
             border: none;
             border-radius: 10px;
-            font-size: 0.95rem;
+            font-size: 0.9rem; /* Уменьшили шрифт */
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -266,26 +380,26 @@
             max-width: 800px;
             max-height: 80vh;
             overflow-y: auto;
-            padding: 22px;
+            padding: 20px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
         }
         .modal-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 18px;
-            padding-bottom: 14px;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
             border-bottom: 2px solid #e2e8f0;
         }
         .modal-title {
-            font-size: 1.3rem;
+            font-size: 1.1rem; /* Уменьшили шрифт */
             color: #1a3a5f;
             font-weight: 700;
         }
         .close-modal {
             background: none;
             border: none;
-            font-size: 1.5rem;
+            font-size: 1.3rem;
             cursor: pointer;
             color: #718096;
             padding: 5px;
@@ -296,23 +410,23 @@
         .payment-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 15px;
-            font-size: 0.9rem;
+            margin-top: 12px;
+            font-size: 0.85rem; /* Уменьшили шрифт */
         }
         .payment-table th {
             background: #f7fafc;
-            padding: 10px 12px;
+            padding: 8px 10px;
             text-align: left;
             font-weight: 600;
             color: #2d3748;
             border-bottom: 2px solid #e2e8f0;
-            font-size: 0.9rem;
+            font-size: 0.85rem; /* Уменьшили шрифт */
         }
         .payment-table td {
-            padding: 10px 12px;
+            padding: 8px 10px;
             border-bottom: 1px solid #e2e8f0;
             color: #4a5568;
-            font-size: 0.9rem;
+            font-size: 0.85rem; /* Уменьшили шрифт */
         }
         .payment-table tr:hover {
             background: #f8fafc;
@@ -330,12 +444,12 @@
         .modal-actions {
             display: flex;
             justify-content: flex-end;
-            gap: 10px;
-            margin-bottom: 18px;
+            gap: 8px;
+            margin-bottom: 16px;
             flex-wrap: wrap;
         }
         .modal-action-btn {
-            padding: 10px 18px;
+            padding: 8px 16px;
             border: none;
             border-radius: 8px;
             font-weight: 600;
@@ -343,8 +457,8 @@
             transition: all 0.3s ease;
             display: flex;
             align-items: center;
-            gap: 8px;
-            font-size: 0.9rem;
+            gap: 6px;
+            font-size: 0.85rem; /* Уменьшили шрифт */
         }
         .modal-save-print-btn {
             background: #2c5282;
@@ -372,22 +486,22 @@
             border-radius: 15px;
             width: 100%;
             max-width: 400px;
-            padding: 25px;
+            padding: 22px;
             text-align: center;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
         }
         .phone-modal-title {
-            font-size: 1.2rem;
+            font-size: 1.1rem; /* Уменьшили шрифт */
             color: #1a3a5f;
-            margin-bottom: 18px;
+            margin-bottom: 16px;
             font-weight: 600;
         }
         .phone-number-display {
-            font-size: 1.7rem;
+            font-size: 1.5rem; /* Было 1.7rem - уменьшили */
             font-weight: 700;
             color: #38a169;
-            margin: 18px 0;
-            padding: 14px;
+            margin: 16px 0;
+            padding: 12px;
             background: #f8fafc;
             border-radius: 10px;
             border: 2px solid #e2e8f0;
@@ -395,18 +509,18 @@
         .phone-modal-buttons {
             display: flex;
             justify-content: center;
-            gap: 12px;
-            margin-top: 22px;
+            gap: 10px;
+            margin-top: 20px;
             flex-wrap: wrap;
         }
         .phone-modal-btn {
-            padding: 12px 22px;
+            padding: 10px 18px;
             border: none;
             border-radius: 10px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            font-size: 0.9rem;
+            font-size: 0.85rem; /* Уменьшили шрифт */
         }
         .copy-phone-btn {
             background: #2c5282;
@@ -424,8 +538,8 @@
         }
         .copy-success {
             color: #38a169;
-            font-size: 0.85rem;
-            margin-top: 10px;
+            font-size: 0.8rem; /* Уменьшили шрифт */
+            margin-top: 8px;
             display: none;
         }
         
@@ -438,16 +552,16 @@
             display: flex;
             align-items: center;
             gap: 6px;
-            margin-top: 10px;
+            margin-top: 8px;
         }
         .advance-btn {
-            width: 24px;
-            height: 24px;
+            width: 22px;
+            height: 22px;
             border-radius: 50%;
             border: 1px solid #cbd5e0;
             background: white;
             color: #4a5568;
-            font-size: 0.8rem;
+            font-size: 0.75rem; /* Уменьшили шрифт */
             font-weight: 600;
             cursor: pointer;
             display: flex;
@@ -468,23 +582,23 @@
             text-align: center;
             font-weight: 600;
             color: #1a3a5f;
-            font-size: 0.85rem;
+            font-size: 0.8rem; /* Уменьшили шрифт */
         }
         
         .term-controls {
             display: flex;
             align-items: center;
             gap: 6px;
-            margin-top: 10px;
+            margin-top: 8px;
         }
         .term-btn {
-            width: 24px;
-            height: 24px;
+            width: 22px;
+            height: 22px;
             border-radius: 50%;
             border: 1px solid #cbd5e0;
             background: white;
             color: #4a5568;
-            font-size: 0.8rem;
+            font-size: 0.75rem; /* Уменьшили шрифт */
             font-weight: 600;
             cursor: pointer;
             display: flex;
@@ -505,23 +619,23 @@
             text-align: center;
             font-weight: 600;
             color: #1a3a5f;
-            font-size: 0.85rem;
+            font-size: 0.8rem; /* Уменьшили шрифт */
         }
         
         .redemption-controls {
             display: flex;
             align-items: center;
             gap: 6px;
-            margin-top: 10px;
+            margin-top: 8px;
         }
         .redemption-btn {
-            width: 24px;
-            height: 24px;
+            width: 22px;
+            height: 22px;
             border-radius: 50%;
             border: 1px solid #cbd5e0;
             background: white;
             color: #4a5568;
-            font-size: 0.8rem;
+            font-size: 0.75rem; /* Уменьшили шрифт */
             font-weight: 600;
             cursor: pointer;
             display: flex;
@@ -542,18 +656,30 @@
             text-align: center;
             font-weight: 600;
             color: #1a3a5f;
-            font-size: 0.85rem;
+            font-size: 0.8rem; /* Уменьшили шрифт */
         }
     </style>
 </head>
 <body>
     <!-- Скрытое поле для защиты от ботов -->
     <input type="text" class="honeypot-field" name="bot_check" autocomplete="off" tabindex="-1">
+    <!-- Скрытое поле для email менеджера -->
+    <input type="hidden" id="managerEmail" value="yweliq@yandex.ru">
     
     <div class="container">
         <header>
             <h1><i class="fas fa-calculator"></i> Лизинговый калькулятор</h1>
             <p>Рассчитайте график платежей и налоговую экономию для вашего бизнеса</p>
+            
+            <!-- Верхние иконки -->
+            <div class="header-icons">
+                <a href="https://t.me/YWeliQ" class="header-icon-link" target="_blank" title="Написать в Telegram">
+                    <i class="fab fa-telegram"></i>
+                </a>
+                <a href="tel:+79990387395" class="header-icon-link" title="Позвонить">
+                    <i class="fas fa-phone"></i>
+                </a>
+            </div>
         </header>
 
         <div class="calculator-wrapper">
@@ -677,9 +803,18 @@
                         <input type="text" id="name" placeholder="Иван Иванов" required>
                     </div>
                     
+                    <!-- Поле для email клиента -->
+                    <div class="form-group">
+                        <label for="clientEmail">Ваш email <span style="color: #e53e3e;">*</span></label>
+                        <input type="email" id="clientEmail" placeholder="ivanov@example.com" required>
+                    </div>
+                    
                     <div class="form-group">
                         <label for="phone">Номер телефона <span style="color: #e53e3e;">*</span></label>
-                        <input type="tel" id="phone" placeholder="+7 (999) 123-45-67" value="+7 (" required>
+                        <div class="phone-input-container">
+                            <span class="phone-prefix" id="phonePrefix">+7</span>
+                            <input type="tel" id="phone" class="form-group input phone-input" placeholder="999 123-45-67" required>
+                        </div>
                     </div>
                     
                     <div class="form-group">
@@ -687,9 +822,20 @@
                         <input type="text" id="inn" placeholder="1234567890" maxlength="12">
                     </div>
                     
+                    <!-- Чекбокс согласия -->
+                    <div class="checkbox-group">
+                        <div class="checkbox-container">
+                            <input type="checkbox" id="privacyAgreement" required>
+                            <label for="privacyAgreement" class="checkbox-label">
+                                Нажимая кнопку, вы даете согласие на обработку персональных данных в соответствии с 
+                                <a href="#" onclick="showPrivacyPolicy(); return false;">политикой конфиденциальности</a>
+                            </label>
+                        </div>
+                    </div>
+                    
                     <div class="form-actions">
-                        <button class="form-action-btn telegram-form-btn" id="sendToTelegramBtn">
-                            <i class="fab fa-telegram"></i> Отправить в Telegram
+                        <button class="form-action-btn manager-form-btn" id="sendToManagerBtn">
+                            <i class="fas fa-paper-plane"></i> Отправить расчёт менеджеру
                         </button>
                         <button class="form-action-btn phone-form-btn" id="callBtn">
                             <i class="fas fa-phone"></i> Позвонить
@@ -701,7 +847,7 @@
         
         <div class="disclaimer">
             * Представленный вариант расчета приблизительный, и не является конечным предложением. Для получения точного коммерческого предложения свяжитесь с нами.<br>
-            Все экономические выгоды приведены в сравнении с покупкой за собственные средства. Возмещение НДС — если компания является плательщиком НДС и применяет общую систему налогообложения.
+            Все экономические выгоды приведены в сравнении с покупкой за собственных средства. Возмещение НДС — если компания является плательщиком НДС и применяет общую систему налогообложения.
         </div>
     </div>
 
@@ -747,6 +893,47 @@
         </div>
     </div>
 
+    <!-- Модальное окно политики конфиденциальности -->
+    <div class="modal-overlay" id="privacyModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Политика конфиденциальности</h2>
+                <button class="close-modal" id="closePrivacyModal">&times;</button>
+            </div>
+            
+            <div style="max-height: 60vh; overflow-y: auto; padding-right: 10px;">
+                <div style="font-size: 0.9rem; line-height: 1.6; color: #4a5568;">
+                    <h3 style="color: #1a3a5f; margin-bottom: 10px;">Согласие на обработку персональных данных</h3>
+                    
+                    <p>Настоящим я даю согласие на обработку моих персональных данных, предоставленных мной при заполнении формы на сайте, включая:</p>
+                    
+                    <ul style="margin: 10px 0 10px 20px;">
+                        <li>Фамилию, имя, отчество</li>
+                        <li>Контактный телефон</li>
+                        <li>Адрес электронной почты</li>
+                        <li>ИНН организации (при указании)</li>
+                        <li>Данные расчета лизинга</li>
+                    </ul>
+                    
+                    <p>Обработка персональных данных осуществляется в целях:</p>
+                    
+                    <ul style="margin: 10px 0 10px 20px;">
+                        <li>Предоставления консультационных услуг по лизингу</li>
+                        <li>Подготовки коммерческих предложений</li>
+                        <li>Обратной связи и уточнения деталей запроса</li>
+                        <li>Информирования о новых предложениях и акциях</li>
+                    </ul>
+                    
+                    <p>Настоящее согласие предоставляется на неопределенный срок и может быть отозвано мной в любое время путем направления письменного уведомления.</p>
+                    
+                    <p style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e2e8f0; font-style: italic;">
+                        Все данные защищены и не передаются третьим лицам без согласия пользователя.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         // ================= БАЗОВАЯ ЗАЩИТА =================
         
@@ -771,7 +958,7 @@
             if (!startTime) return true;
             
             const fillTime = Date.now() - parseInt(startTime);
-            // Минимальное время заполнения - 1 секунда (можно изменить)
+            // Минимальное время заполнения - 1 секунда
             if (fillTime < 1000) {
                 console.log('Форма заполнена очень быстро');
                 return false;
@@ -779,9 +966,25 @@
             return true;
         }
         
+        // 4. Функция для показа политики конфиденциальности
+        function showPrivacyPolicy() {
+            const privacyModal = document.getElementById('privacyModal');
+            privacyModal.style.display = 'flex';
+            
+            const closePrivacyModal = document.getElementById('closePrivacyModal');
+            closePrivacyModal.onclick = function() {
+                privacyModal.style.display = 'none';
+            };
+            
+            privacyModal.addEventListener('click', function(e) {
+                if (e.target === privacyModal) {
+                    privacyModal.style.display = 'none';
+                }
+            });
+        }
+        
         // ================= ОСНОВНОЙ КОД КАЛЬКУЛЯТОРА =================
         
-        // Глобальные переменные для хранения данных расчета
         let currentCalculation = {
             monthlyPayment: 0,
             totalTaxSavings: 0,
@@ -827,7 +1030,7 @@
         const profitTaxSaveEl = document.getElementById('profitTaxSave');
         const totalAmountEl = document.getElementById('totalAmount');
         
-        const sendToTelegramBtn = document.getElementById('sendToTelegramBtn');
+        const sendToManagerBtn = document.getElementById('sendToManagerBtn');
         const callBtn = document.getElementById('callBtn');
         const openScheduleBtn = document.getElementById('openScheduleBtn');
         const paymentModal = document.getElementById('paymentModal');
@@ -841,6 +1044,12 @@
         const callNowBtn = document.getElementById('callNowBtn');
         const closePhoneModal = document.getElementById('closePhoneModal');
         const copySuccess = document.getElementById('copySuccess');
+        
+        const phoneInput = document.getElementById('phone');
+        const phonePrefix = document.getElementById('phonePrefix');
+        const clientEmailInput = document.getElementById('clientEmail');
+        const privacyAgreement = document.getElementById('privacyAgreement');
+        const managerEmail = document.getElementById('managerEmail').value;
 
         // Функции форматирования
         function formatNumber(num) {
@@ -853,14 +1062,11 @@
 
         // Функция для форматирования ввода денег
         function formatMoneyInput(value) {
-            // Удаляем все нецифры
             let cleanValue = value.replace(/\D/g, '');
-            // Ограничиваем максимальное значение
             const maxValue = 100000000;
             if (parseInt(cleanValue) > maxValue) {
                 cleanValue = maxValue.toString();
             }
-            // Форматируем с пробелами
             return cleanValue.replace(/\B(?=(\d{3})+(?!\d))/g, " ");
         }
 
@@ -869,32 +1075,51 @@
             return parseInt(formatted.replace(/\s/g, '')) || 0;
         }
 
-        // Функция для расчета НДС по формуле: (цена с НДС * 22) / 122
+        // Маска для телефона с динамическим префиксом
+        function formatPhoneInput(value) {
+            let x = value.replace(/\D/g, '').match(/(\d{0,1})(\d{0,3})(\d{0,3})(\d{0,2})(\d{0,2})/);
+            
+            if (!x[2]) {
+                // Только префикс страны
+                phonePrefix.textContent = '+7';
+                return '';
+            } else if (x[2] && !x[3]) {
+                // Код оператора без скобок
+                phonePrefix.textContent = '+7 ' + x[2];
+                return '';
+            } else if (x[2] && x[3] && !x[4]) {
+                // Первые 3 цифры номера
+                phonePrefix.textContent = '+7 ' + x[2];
+                return x[3];
+            } else if (x[2] && x[3] && x[4] && !x[5]) {
+                phonePrefix.textContent = '+7 ' + x[2];
+                return x[3] + '-' + x[4];
+            } else {
+                phonePrefix.textContent = '+7 ' + x[2];
+                return x[3] + '-' + x[4] + '-' + x[5];
+            }
+        }
+
+        // Функция для расчета НДС
         function calculateVAT(amountWithVAT) {
-            // Формула: НДС = цена с НДС * 22 / 122
             return (amountWithVAT * 22) / 122;
         }
 
-        // Функция для расчета налога на прибыль по формуле: (сумма с НДС - НДС) × 25%
         function calculateProfitTax(amountWithVAT, vatAmount) {
-            // Формула: Налог на прибыль = (Сумма с НДС - НДС) × 25%
             const amountWithoutVAT = amountWithVAT - vatAmount;
             return amountWithoutVAT * 0.25;
         }
 
-        // Функция для обновления отображения стоимостей в рублях под процентами
+        // Функция для обновления отображения стоимостей
         function updateAmountDisplays() {
             const carPrice = parseFormattedNumber(priceInput.value);
             
-            // Обновление аванса в рублях
             const advancePercent = parseFloat(advanceSlider.value);
             const advanceAmount = Math.round(carPrice * advancePercent / 100);
             advanceRub.textContent = formatCurrency(advanceAmount);
             advancePercentDisplay.textContent = advancePercent.toFixed(1) + '%';
             
-            // Обновление выкупного платежа в рублях
             let redemptionPercent = parseFloat(redemptionSlider.value);
-            // Ограничиваем максимум 15%
             if (redemptionPercent > 15) {
                 redemptionPercent = 15;
                 redemptionSlider.value = redemptionPercent;
@@ -903,7 +1128,6 @@
             redemptionRub.textContent = formatCurrency(redemptionAmount);
             redemptionPercentDisplay.textContent = redemptionPercent.toFixed(1) + '%';
             
-            // Обновление отображения срока
             const termMonths = parseFloat(termSlider.value);
             termDisplay.textContent = termMonths + ' мес.';
         }
@@ -916,23 +1140,19 @@
             return principal * coefficient;
         }
 
-        // Функция для генерации графика платежей с расчетом НДС и налога на прибыль
+        // Генерация графика платежей
         function generatePaymentSchedule(carPrice, monthlyPayment, termMonths, advanceAmount, redemptionAmount, totalContractAmount) {
             const schedule = [];
             
-            // Рассчитываем НДС и налог на прибыль для аванса
             const advanceVAT = calculateVAT(advanceAmount);
             const advanceProfitTax = calculateProfitTax(advanceAmount, advanceVAT);
             
-            // Рассчитываем НДС и налог на прибыль для выкупного платежа
             const redemptionVAT = calculateVAT(redemptionAmount);
             const redemptionProfitTax = calculateProfitTax(redemptionAmount, redemptionVAT);
             
-            // Рассчитываем НДС и налог на прибыль для каждого ежемесячного платежа
             const monthlyPaymentVAT = calculateVAT(monthlyPayment);
             const monthlyPaymentProfitTax = calculateProfitTax(monthlyPayment, monthlyPaymentVAT);
             
-            // 1. Аванс (строка 0)
             schedule.push({
                 month: "Аванс",
                 payment: advanceAmount,
@@ -940,7 +1160,6 @@
                 profitTax: advanceProfitTax
             });
             
-            // 2. Ежемесячные платежи (строки 1-N)
             for (let month = 1; month <= termMonths; month++) {
                 schedule.push({
                     month: `Месяц ${month}`,
@@ -950,7 +1169,6 @@
                 });
             }
             
-            // 3. Выкупной платеж (последняя строка перед итогами)
             schedule.push({
                 month: "Выкупной платеж",
                 payment: redemptionAmount,
@@ -958,7 +1176,6 @@
                 profitTax: redemptionProfitTax
             });
             
-            // Итоговые суммы
             const totalAdvanceVAT = advanceVAT;
             const totalRedemptionVAT = redemptionVAT;
             const totalMonthlyVAT = monthlyPaymentVAT * termMonths;
@@ -971,7 +1188,6 @@
             
             const totalAllPayments = advanceAmount + (monthlyPayment * termMonths) + redemptionAmount;
             
-            // Сохраняем итоговые суммы
             schedule.totalAdvanceVAT = totalAdvanceVAT;
             schedule.totalRedemptionVAT = totalRedemptionVAT;
             schedule.totalMonthlyVAT = totalMonthlyVAT;
@@ -989,26 +1205,20 @@
 
         // Основная функция расчетов
         function calculateLeasing() {
-            // Проверяем honeypot перед расчетом
             if (!checkHoneypot()) {
                 return;
             }
             
-            // Получаем значения
             const carPrice = parseFormattedNumber(priceInput.value);
-            // Минимальная стоимость теперь 0 вместо 500000
             if (carPrice < 0) {
                 priceInput.value = '0';
                 return;
             }
             
-            // Получаем аванс (только проценты)
             const advancePercent = parseFloat(advanceSlider.value);
             const advanceAmount = carPrice * advancePercent / 100;
             
-            // Получаем выкупной платеж (только проценты)
             let redemptionPercent = parseFloat(redemptionSlider.value);
-            // Ограничиваем максимум 15%
             if (redemptionPercent > 15) {
                 redemptionPercent = 15;
                 redemptionSlider.value = redemptionPercent;
@@ -1017,21 +1227,17 @@
             
             const termMonths = parseFloat(termSlider.value);
 
-            // Параметры
-            const annualRate = 0.15;       // Годовая ставка 15%
-            const commissionRate = 0.08;   // Комиссия 8% годовых
-            const insuranceRate = 0.05;    // Страховка 5% годовых
-            const serviceFee = 50000;      // Единовременная комиссия
-            const markup = 1.03;           // Надбавка 3%
+            const annualRate = 0.15;
+            const commissionRate = 0.08;
+            const insuranceRate = 0.05;
+            const serviceFee = 50000;
+            const markup = 1.03;
 
-            // Расчет финансируемой стоимости
             const financedAmount = carPrice - advanceAmount - redemptionAmount;
             if (financedAmount < 0) {
-                // Если стоимость отрицательная, корректируем выкупной платеж
                 const newRedemptionAmount = carPrice - advanceAmount;
                 const newRedemptionPercent = (newRedemptionAmount / carPrice * 100);
                 if (newRedemptionPercent > 15) {
-                    // Если все равно больше 15%, устанавливаем 15%
                     redemptionPercent = 15;
                     redemptionAmount = carPrice * redemptionPercent / 100;
                 } else {
@@ -1041,42 +1247,28 @@
                 redemptionSlider.value = redemptionPercent.toFixed(2);
             }
 
-            // Расчет ежемесячных компонентов
             const monthlyRate = annualRate / 12;
             let basePayment = 0;
             if (financedAmount > 0 && termMonths > 0) {
                 basePayment = calculateAnnuity(financedAmount, monthlyRate, termMonths);
             }
             
-            // Дополнительные расходы
             const insuranceMonthly = carPrice * insuranceRate / 12;
             const averageDebt = financedAmount / 2;
             const commissionMonthly = averageDebt * commissionRate / 12;
             
-            // Базовая стоимость платежа
             let baseMonthlyPayment = basePayment + insuranceMonthly + commissionMonthly + (serviceFee / termMonths);
-            
-            // Финальный платеж с учетом надбавки
             let finalMonthlyPayment = baseMonthlyPayment * markup;
 
-            // Расчет общих стоимостей
             const totalMonthlyPayments = finalMonthlyPayment * termMonths;
             const totalContractAmount = advanceAmount + totalMonthlyPayments + redemptionAmount;
 
-            // Расчет налоговой экономии по правильным формулам
-            // 1. НДС к возмещению по формуле: (общая стоимость договора * 22) / 122
             const vatSavings = calculateVAT(totalContractAmount);
-            
-            // 2. Налог на прибыль по формуле: (общая стоимость договора - НДС) × 25%
             const profitTaxSavings = calculateProfitTax(totalContractAmount, vatSavings);
-            
-            // Общая налоговая экономия
             const totalTaxSavings = vatSavings + profitTaxSavings;
 
-            // Генерация графика платежей с расчетом НДС и налога на прибыль для каждого платежа
             const paymentSchedule = generatePaymentSchedule(carPrice, finalMonthlyPayment, termMonths, advanceAmount, redemptionAmount, totalContractAmount);
 
-            // Сохранение данных
             currentCalculation = {
                 monthlyPayment: finalMonthlyPayment,
                 totalTaxSavings: totalTaxSavings,
@@ -1093,20 +1285,17 @@
                 totalAllPayments: paymentSchedule.totalAllPayments
             };
 
-            // Обновление интерфейса
             monthlyPaymentEl.textContent = carPrice > 0 ? formatCurrency(finalMonthlyPayment) : "0 ₽";
             taxSavingEl.textContent = carPrice > 0 ? formatCurrency(totalTaxSavings) : "0 ₽";
             ndsSaveEl.textContent = carPrice > 0 ? formatCurrency(vatSavings) : "0 ₽";
             profitTaxSaveEl.textContent = carPrice > 0 ? formatCurrency(profitTaxSavings) : "0 ₽";
             totalAmountEl.textContent = formatCurrency(totalContractAmount);
             
-            // Обновление отображаемых значений
             priceValue.textContent = formatCurrency(carPrice);
             advanceValue.textContent = advancePercent.toFixed(1) + '%';
             redemptionValue.textContent = redemptionPercent.toFixed(1) + '%';
             termValue.textContent = termMonths;
             
-            // Обновление стоимостей в рублях под процентами
             updateAmountDisplays();
         }
 
@@ -1122,7 +1311,6 @@
                 })
                 .catch(err => {
                     console.error('Ошибка копирования: ', err);
-                    // Альтернативный способ копирования
                     const textArea = document.createElement('textarea');
                     textArea.value = phoneNumber;
                     document.body.appendChild(textArea);
@@ -1176,7 +1364,6 @@
                     </tr>`;
             });
             
-            // Итоговые строки
             const totalAllPayments = schedule.totalAllPayments || currentCalculation.totalContractAmount;
             const totalVAT = schedule.totalVAT || currentCalculation.vatSavings;
             const totalProfitTax = schedule.totalProfitTax || currentCalculation.profitTaxSavings;
@@ -1208,14 +1395,12 @@
         // Функция для сохранения и печати
         function saveAndPrint() {
             try {
-                // Сначала пытаемся создать PDF
                 if (typeof window.jspdf !== 'undefined') {
                     const { jsPDF } = window.jspdf;
                     const doc = new jsPDF('p', 'mm', 'a4');
                     
                     doc.setFont("helvetica");
                     
-                    // Заголовок
                     doc.setFontSize(18);
                     doc.setTextColor(26, 58, 95);
                     doc.text("График платежей по лизингу", 105, 20, { align: "center" });
@@ -1224,7 +1409,6 @@
                     doc.setTextColor(100, 100, 100);
                     doc.text(`Дата формирования: ${new Date().toLocaleDateString('ru-RU')}`, 105, 30, { align: "center" });
                     
-                    // Информация о расчете
                     doc.setFontSize(13);
                     doc.setTextColor(26, 58, 95);
                     doc.text("Параметры расчета:", 20, 45);
@@ -1247,14 +1431,12 @@
                         yPos += 6;
                     });
                     
-                    // График платежей
                     yPos += 8;
                     doc.setFontSize(13);
                     doc.setTextColor(26, 58, 95);
                     doc.text("График платежей:", 20, yPos);
                     yPos += 8;
                     
-                    // Заголовок таблицы
                     doc.setFontSize(10);
                     doc.setTextColor(255, 255, 255);
                     doc.setFillColor(44, 82, 130);
@@ -1266,7 +1448,6 @@
                     
                     yPos += 12;
                     
-                    // Данные таблицы
                     const schedule = currentCalculation.paymentSchedule;
                     for (let i = 0; i < schedule.length; i++) {
                         const item = schedule[i];
@@ -1285,7 +1466,6 @@
                         yPos += 8;
                     }
                     
-                    // Итоговые строки
                     yPos += 5;
                     doc.setFillColor(240, 247, 255);
                     doc.rect(20, yPos, 170, 8, 'F');
@@ -1297,23 +1477,19 @@
                     doc.text(formatCurrency(schedule.totalVAT), 100, yPos + 5);
                     doc.text(formatCurrency(schedule.totalProfitTax), 150, yPos + 5, { align: "right" });
                     
-                    // Сохраняем PDF
                     const fileName = `график_платежей_лизинг_${new Date().toISOString().slice(0, 10)}.pdf`;
                     doc.save(fileName);
                     
-                    // После сохранения PDF, открываем диалог печати
                     setTimeout(() => {
                         printSchedule();
                     }, 1000);
                     
                 } else {
-                    // Если библиотека jsPDF не загружена, просто печатаем
                     printSchedule();
                 }
                 
             } catch (error) {
                 console.error("Ошибка при сохранении PDF:", error);
-                // В случае ошибки просто печатаем
                 printSchedule();
             }
         }
@@ -1358,6 +1534,102 @@
             printWindow.document.close();
             printWindow.focus();
             printWindow.print();
+        }
+
+        // Функция отправки расчета менеджеру по email
+        function sendToManager() {
+            // Проверяем honeypot перед отправкой
+            if (!checkHoneypot()) {
+                alert('Обнаружена подозрительная активность. Пожалуйста, обновите страницу.');
+                return;
+            }
+            
+            // Проверяем время заполнения формы
+            if (!checkFormFillTime()) {
+                alert('Пожалуйста, заполняйте форму более внимательно. Минимальное время заполнения - 1 секунда.');
+                return;
+            }
+            
+            // Проверяем согласие на обработку данных
+            if (!privacyAgreement.checked) {
+                alert('Пожалуйста, дайте согласие на обработку персональных данных.');
+                return;
+            }
+            
+            const name = document.getElementById('name').value.trim();
+            const clientEmail = clientEmailInput.value.trim();
+            const phone = phoneInput.value.trim();
+            const inn = document.getElementById('inn').value.trim();
+            
+            // Валидация обязательных полей
+            if (!name || !clientEmail || !phone) {
+                alert('Пожалуйста, заполните все обязательные поля: имя, email и телефон');
+                return;
+            }
+            
+            // Валидация email
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(clientEmail)) {
+                alert('Пожалуйста, введите корректный email адрес');
+                return;
+            }
+            
+            // Валидация телефона (минимум 10 цифр)
+            const phoneDigits = phone.replace(/\D/g, '');
+            if (phoneDigits.length < 10) {
+                alert('Пожалуйста, введите корректный номер телефона');
+                return;
+            }
+            
+            // Формируем полный телефон
+            const fullPhone = '+7 ' + phone;
+            
+            // Формируем тему письма
+            const subject = encodeURIComponent(`Расчет лизинга от ${name}`);
+            
+            // Формируем тело письма
+            const body = encodeURIComponent(`Новый расчет лизинга:
+
+📋 КОНТАКТНЫЕ ДАННЫЕ:
+• Имя: ${name}
+• Email: ${clientEmail}
+• Телефон: ${fullPhone}
+${inn ? `• ИНН организации: ${inn}` : ''}
+
+📊 ПАРАМЕТРЫ РАСЧЕТА:
+• Стоимость техники: ${formatCurrency(currentCalculation.carPrice)}
+• Первоначальный взнос: ${currentCalculation.advancePercent.toFixed(1)}% (${formatCurrency(currentCalculation.advanceAmount)})
+• Срок договора: ${currentCalculation.termMonths} месяцев
+• Выкупной платеж: ${currentCalculation.redemptionPercent.toFixed(1)}% (${formatCurrency(currentCalculation.redemptionAmount)})
+
+💰 РЕЗУЛЬТАТЫ РАСЧЕТА:
+• Ежемесячный платеж: ${formatCurrency(currentCalculation.monthlyPayment)}
+• Налоговая экономия: ${formatCurrency(currentCalculation.totalTaxSavings)}
+• Общая стоимость договора: ${formatCurrency(currentCalculation.totalContractAmount)}
+
+📅 ДЕТАЛИ ЗАПРОСА:
+• Дата и время: ${new Date().toLocaleString('ru-RU')}
+• IP адрес: [скрыто]
+• User-Agent: ${navigator.userAgent.substring(0, 100)}...
+
+Клиент просит связаться для обсуждения деталей.`);
+
+            // Отправляем письмо через mailto ссылку
+            const mailtoLink = `mailto:${managerEmail}?subject=${subject}&body=${body}`;
+            
+            // Пытаемся открыть почтовый клиент
+            window.location.href = mailtoLink;
+            
+            // Резервный вариант через новый таб после задержки
+            setTimeout(() => {
+                const newWindow = window.open(mailtoLink, '_blank');
+                if (newWindow) {
+                    newWindow.opener = null;
+                }
+            }, 500);
+            
+            // Показываем сообщение пользователю
+            alert('Открываю почтовый клиент... Если письмо не открылось автоматически, пожалуйста, отправьте email на yweliq@yandex.ru с данными расчета.');
         }
 
         // Настройка обработчиков событий
@@ -1435,7 +1707,6 @@
             // Обработчики для выкупного платежа
             redemptionSlider.addEventListener('input', function() {
                 let percent = parseFloat(this.value);
-                // Ограничиваем максимум 15%
                 if (percent > 15) {
                     percent = 15;
                     this.value = percent;
@@ -1464,35 +1735,30 @@
                 }
             });
 
-            // Маска для телефона
-            const phoneInput = document.getElementById('phone');
+            // Маска для телефона с динамическим префиксом
             phoneInput.addEventListener('input', function(e) {
-                let x = e.target.value.replace(/\D/g, '').match(/(\d{0,1})(\d{0,3})(\d{0,3})(\d{0,2})(\d{0,2})/);
-                e.target.value = !x[2] ? x[1] : '+7 (' + x[2] + ') ' + x[3] + (x[4] ? '-' + x[4] : '') + (x[5] ? '-' + x[5] : '');
+                this.value = formatPhoneInput(this.value);
             });
 
             // Фокус на поле телефона
             phoneInput.addEventListener('focus', function() {
-                if (this.value === '+7 (') {
-                    this.setSelectionRange(4, 4);
+                if (!this.value) {
+                    this.value = '';
+                }
+            });
+
+            // Валидация email
+            clientEmailInput.addEventListener('blur', function() {
+                const email = this.value.trim();
+                if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                    alert('Пожалуйста, введите корректный email адрес');
+                    this.focus();
                 }
             });
 
             // Обработчики для кнопок отправки и сохранения
-            sendToTelegramBtn.addEventListener('click', function() {
-                // Проверяем honeypot перед отправкой
-                if (!checkHoneypot()) {
-                    alert('Обнаружена подозрительная активность. Пожалуйста, обновите страницу.');
-                    return;
-                }
-                
-                // Проверяем время заполнения формы
-                if (!checkFormFillTime()) {
-                    alert('Пожалуйста, заполняйте форму более внимательно. Минимальное время заполнения - 1 секунда.');
-                    return;
-                }
-                
-                sendToTelegram();
+            sendToManagerBtn.addEventListener('click', function() {
+                sendToManager();
             });
             
             callBtn.addEventListener('click', function() {
@@ -1534,49 +1800,25 @@
                 }
             });
             
+            // Обработчики для политики конфиденциальности
+            document.getElementById('closePrivacyModal').addEventListener('click', function() {
+                document.getElementById('privacyModal').style.display = 'none';
+            });
+            
+            document.getElementById('privacyModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.style.display = 'none';
+                }
+            });
+            
+            // Закрытие по ESC
             document.addEventListener('keydown', function(e) {
                 if (e.key === 'Escape') {
                     paymentModal.style.display = 'none';
                     phoneModal.style.display = 'none';
+                    document.getElementById('privacyModal').style.display = 'none';
                 }
             });
-        }
-
-        // Функция для отправки в Telegram
-        function sendToTelegram() {
-            const name = document.getElementById('name').value;
-            const phone = document.getElementById('phone').value;
-            const inn = document.getElementById('inn').value;
-            
-            if (!name || !phone) {
-                alert('Пожалуйста, заполните обязательные поля: имя и телефон');
-                return;
-            }
-            
-            const message = `Здравствуйте! Я хочу рассчитать лизинг:
-
-💼 *Параметры расчета:*
-• Стоимость техники: ${formatCurrency(currentCalculation.carPrice)}
-• Первоначальный взнос: ${currentCalculation.advancePercent.toFixed(1)}% (${formatCurrency(currentCalculation.advanceAmount)})
-• Срок договора: ${currentCalculation.termMonths} мес.
-• Выкупной платеж: ${currentCalculation.redemptionPercent.toFixed(1)}% (${formatCurrency(currentCalculation.redemptionAmount)})
-
-📊 *Результаты расчета:*
-• Ежемесячный платеж: ${formatCurrency(currentCalculation.monthlyPayment)}
-• Налоговая экономия: ${formatCurrency(currentCalculation.totalTaxSavings)}
-• Общая стоимость договора: ${formatCurrency(currentCalculation.totalContractAmount)}
-
-👤 *Мои данные:*
-• Имя: ${name}
-• Телефон: ${phone}
-${inn ? `• ИНН: ${inn}` : ''}
-
-Хочу получить подробное коммерческое предложение!`;
-
-            const encodedMessage = encodeURIComponent(message);
-            const telegramUrl = `https://t.me/YWeliQ?text=${encodedMessage}`;
-            
-            window.open(telegramUrl, '_blank');
         }
 
         // Инициализация при загрузке
@@ -1593,12 +1835,10 @@ ${inn ? `• ИНН: ${inn}` : ''}
             // Первоначальный расчет
             calculateLeasing();
             
-            // Установка курсора в поле телефона
-            const phoneInput = document.getElementById('phone');
-            phoneInput.value = '+7 (';
+            // Установка курсора в поле имени
+            const nameInput = document.getElementById('name');
             setTimeout(() => {
-                phoneInput.focus();
-                phoneInput.setSelectionRange(4, 4);
+                nameInput.focus();
             }, 100);
         });
     </script>
