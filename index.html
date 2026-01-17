@@ -24,7 +24,7 @@
             width: 0 !important;
         }
         
-        /* Верхние иконки */
+        /* Верхние иконки - ОБНОВЛЕНО: синий Telegram и зеленый телефон */
         .header-icons {
             position: absolute;
             right: 20px;
@@ -41,18 +41,35 @@
             width: 44px;
             height: 44px;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.15);
-            color: white;
             text-decoration: none;
             transition: all 0.3s ease;
             font-size: 1.3rem;
             border: 2px solid rgba(255, 255, 255, 0.3);
         }
         
+        /* Синий Telegram с белым самолетиком */
+        .telegram-icon {
+            background: #0088cc;
+            color: white;
+        }
+        
+        /* Зеленый телефон */
+        .phone-icon {
+            background: #38a169;
+            color: white;
+        }
+        
         .header-icon-link:hover {
-            background: rgba(255, 255, 255, 0.25);
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        .telegram-icon:hover {
+            background: #0077b5;
+        }
+        
+        .phone-icon:hover {
+            background: #2f855a;
         }
         
         @media (max-width: 768px) {
@@ -86,19 +103,19 @@
         
         /* Уменьшаем шрифты разделов */
         .section-title { 
-            font-size: 1rem; /* Было 1.2rem - уменьшили */
+            font-size: 1rem;
             color: #1a3a5f; 
-            margin-bottom: 18px; /* Уменьшили отступ */
-            padding-bottom: 6px; /* Уменьшили отступ */
+            margin-bottom: 18px;
+            padding-bottom: 6px;
             border-bottom: 2px solid #e2e8f0; 
             display: flex; 
             align-items: center; 
             gap: 8px; 
         }
         
-        .input-group { margin-bottom: 18px; } /* Уменьшили отступ */
-        .input-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; } /* Уменьшили отступ */
-        .input-header label { font-weight: 600; color: #2d3748; font-size: 0.9rem; } /* Уменьшили шрифт */
+        .input-group { margin-bottom: 18px; }
+        .input-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+        .input-header label { font-weight: 600; color: #2d3748; font-size: 0.9rem; }
         
         /* Убираем синий выделенный текст - делаем простой */
         .input-header .value-container { 
@@ -108,36 +125,36 @@
             gap: 2px;
         }
         .input-header .value { 
-            font-weight: 600; /* Уменьшили жирность */
-            color: #4a5568; /* Изменили цвет с синего на серый */
-            background: transparent; /* Убрали фон */
-            padding: 2px 0; /* Убрали отступы */
-            border-radius: 0; /* Убрали скругления */
+            font-weight: 600;
+            color: #4a5568;
+            background: transparent;
+            padding: 2px 0;
+            border-radius: 0;
             font-size: 0.9rem; 
-            min-width: auto; /* Убрали минимальную ширину */
+            min-width: auto;
             text-align: right;
             min-height: auto;
         }
         .input-header .value-rub { 
-            font-weight: 500; /* Уменьшили жирность */
-            color: #718096; /* Более светлый серый */
-            font-size: 0.7rem; /* Уменьшили шрифт */
+            font-weight: 500;
+            color: #718096;
+            font-size: 0.7rem;
             text-align: right;
             padding: 0;
         }
         
         .range-slider { width: 100%; height: 8px; -webkit-appearance: none; background: #cbd5e0; border-radius: 5px; outline: none; margin-bottom: 5px; }
         .range-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; background: #2c5282; border-radius: 50%; cursor: pointer; border: 3px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
-        .range-limits { display: flex; justify-content: space-between; margin-top: 5px; font-size: 0.75rem; color: #718096; } /* Уменьшили шрифт */
+        .range-limits { display: flex; justify-content: space-between; margin-top: 5px; font-size: 0.75rem; color: #718096; }
         
-        .input-with-controls { display: flex; align-items: center; gap: 12px; } /* Уменьшили отступ */
+        .input-with-controls { display: flex; align-items: center; gap: 12px; }
         .money-input { 
             width: 100%; 
             max-width: 200px;
-            padding: 10px 12px; /* Уменьшили отступы */
+            padding: 10px 12px;
             border: 1px solid #cbd5e0; 
             border-radius: 10px; 
-            font-size: 0.95rem; /* Уменьшили шрифт */
+            font-size: 0.95rem;
             font-weight: 600;
             color: #1a3a5f;
             text-align: right;
@@ -155,27 +172,27 @@
             font-weight: 600; 
             color: #4a5568; 
             white-space: nowrap;
-            font-size: 0.9rem; /* Уменьшили шрифт */
+            font-size: 0.9rem;
         }
         
         /* Уменьшаем шрифты в результатах */
         .result-box { background: white; border-radius: 12px; padding: 16px; margin-bottom: 16px; border-left: 5px solid #2c5282; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.03); }
         .result-main { border-left-color: #e67e22; background: linear-gradient(to right, #fffaf0, #fff5e6); }
-        .result-label { font-size: 0.85rem; color: #4a5568; margin-bottom: 4px; } /* Уменьшили шрифт */
-        .result-value { font-size: 1.4rem; font-weight: 800; color: #1a3a5f; } /* Было 1.7rem - уменьшили */
-        .result-note { font-size: 0.75rem; color: #e67e22; margin-top: 6px; font-style: italic; } /* Уменьшили шрифт */
-        .result-sub { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 18px; } /* Уменьшили отступы */
-        .disclaimer { font-size: 0.7rem; color: #718096; text-align: center; margin-top: 20px; padding: 10px; border-top: 1px solid #e2e8f0; line-height: 1.5; } /* Уменьшили шрифт */
-        .info-icon { color: #2c5282; margin-left: 5px; cursor: help; font-size: 0.85rem; } /* Уменьшили размер */
-        .contact-form { margin-top: 20px; } /* Уменьшили отступ */
-        .form-group { margin-bottom: 16px; } /* Уменьшили отступ */
-        .form-group label { display: block; margin-bottom: 6px; font-weight: 600; color: #2d3748; font-size: 0.9rem; } /* Уменьшили шрифт */
+        .result-label { font-size: 0.85rem; color: #4a5568; margin-bottom: 4px; }
+        .result-value { font-size: 1.4rem; font-weight: 800; color: #1a3a5f; }
+        .result-note { font-size: 0.75rem; color: #e67e22; margin-top: 6px; font-style: italic; }
+        .result-sub { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 18px; }
+        .disclaimer { font-size: 0.7rem; color: #718096; text-align: center; margin-top: 20px; padding: 10px; border-top: 1px solid #e2e8f0; line-height: 1.5; }
+        .info-icon { color: #2c5282; margin-left: 5px; cursor: help; font-size: 0.85rem; }
+        .contact-form { margin-top: 20px; }
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; margin-bottom: 6px; font-weight: 600; color: #2d3748; font-size: 0.9rem; }
         .form-group input { 
             width: 100%; 
-            padding: 10px 12px; /* Уменьшили отступы */
+            padding: 10px 12px;
             border: 1px solid #cbd5e0; 
             border-radius: 10px; 
-            font-size: 0.95rem; /* Уменьшили шрифт */
+            font-size: 0.95rem;
             transition: all 0.3s ease;
         }
         .form-group input:focus { 
@@ -184,25 +201,32 @@
             box-shadow: 0 0 0 3px rgba(44, 82, 130, 0.1); 
         }
         
-        /* Стиль для поля телефона - скрываем скобку до заполнения */
+        /* ИСПРАВЛЕНО: Поле телефона - выравнивание цифры 7 */
         .phone-input-container {
             position: relative;
+            display: flex;
+            align-items: center;
         }
         .phone-prefix {
             position: absolute;
             left: 12px;
             top: 50%;
             transform: translateY(-50%);
-            color: #718096;
+            color: #4a5568;
             font-size: 0.95rem;
+            font-weight: 500;
             pointer-events: none;
+            display: flex;
+            align-items: center;
+            height: 100%;
         }
         .phone-input {
-            padding-left: 38px !important; /* Отступ для префикса */
+            padding-left: 30px !important; /* Уменьшили отступ для префикса */
+            width: 100%;
         }
         
-        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; } /* Уменьшили отступ */
-        .form-optional { color: #718096; font-size: 0.8rem; } /* Уменьшили шрифт */
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .form-optional { color: #718096; font-size: 0.8rem; }
         
         /* Стили для чекбокса согласия */
         .checkbox-group {
@@ -258,7 +282,7 @@
             text-align: center;
         }
         .tax-savings-label {
-            font-size: 0.7rem; /* Уменьшили шрифт */
+            font-size: 0.7rem;
             color: #4a5568;
             margin-bottom: 6px;
             line-height: 1.3;
@@ -268,7 +292,7 @@
             justify-content: center;
         }
         .tax-savings-value {
-            font-size: 1rem; /* Было 1.1rem - уменьшили */
+            font-size: 1rem;
             font-weight: 700;
             color: #1a3a5f;
         }
@@ -288,52 +312,84 @@
             border: 1px solid #c3dafe;
         }
         .total-label {
-            font-size: 0.9rem; /* Уменьшили шрифт */
+            font-size: 0.9rem;
             font-weight: 600;
             color: #2d3748;
         }
         .total-value {
-            font-size: 1.1rem; /* Было 1.3rem - уменьшили */
+            font-size: 1.1rem;
             font-weight: 800;
             color: #1a3a5f;
         }
         
-        /* Обновленные стили для кнопок формы */
+        /* ОБНОВЛЕНО: 3 кнопки в форме - Telegram, Email, Звонок */
         .form-actions {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
             margin-top: 20px;
+        }
+        @media (max-width: 768px) {
+            .form-actions { 
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
         }
         @media (max-width: 480px) {
             .form-actions { grid-template-columns: 1fr; }
         }
+        
         .form-action-btn {
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
-            padding: 12px;
+            padding: 12px 8px;
             border: none;
             border-radius: 10px;
-            font-size: 0.9rem; /* Уменьшили шрифт */
+            font-size: 0.85rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
             text-decoration: none;
             text-align: center;
+            min-height: 44px;
         }
-        .manager-form-btn {
+        
+        /* Синяя кнопка Telegram */
+        .telegram-form-btn {
             background: linear-gradient(to right, #0088cc, #0077b5);
             color: white;
         }
+        
+        .telegram-form-btn:hover {
+            background: linear-gradient(to right, #0077b5, #006ba1);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 136, 204, 0.3);
+        }
+        
+        /* Оранжевая кнопка Email */
+        .email-form-btn {
+            background: linear-gradient(to right, #e67e22, #d35400);
+            color: white;
+        }
+        
+        .email-form-btn:hover {
+            background: linear-gradient(to right, #d35400, #c0392b);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(230, 126, 34, 0.3);
+        }
+        
+        /* Зеленая кнопка телефона */
         .phone-form-btn {
             background: linear-gradient(to right, #38a169, #2f855a);
             color: white;
         }
-        .form-action-btn:hover {
+        
+        .phone-form-btn:hover {
+            background: linear-gradient(to right, #2f855a, #276749);
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 5px 15px rgba(56, 161, 105, 0.3);
         }
         
         .open-schedule-btn-container {
@@ -347,7 +403,7 @@
             padding: 12px;
             border: none;
             border-radius: 10px;
-            font-size: 0.9rem; /* Уменьшили шрифт */
+            font-size: 0.9rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -392,7 +448,7 @@
             border-bottom: 2px solid #e2e8f0;
         }
         .modal-title {
-            font-size: 1.1rem; /* Уменьшили шрифт */
+            font-size: 1.1rem;
             color: #1a3a5f;
             font-weight: 700;
         }
@@ -411,7 +467,7 @@
             width: 100%;
             border-collapse: collapse;
             margin-top: 12px;
-            font-size: 0.85rem; /* Уменьшили шрифт */
+            font-size: 0.85rem;
         }
         .payment-table th {
             background: #f7fafc;
@@ -420,13 +476,13 @@
             font-weight: 600;
             color: #2d3748;
             border-bottom: 2px solid #e2e8f0;
-            font-size: 0.85rem; /* Уменьшили шрифт */
+            font-size: 0.85rem;
         }
         .payment-table td {
             padding: 8px 10px;
             border-bottom: 1px solid #e2e8f0;
             color: #4a5568;
-            font-size: 0.85rem; /* Уменьшили шрифт */
+            font-size: 0.85rem;
         }
         .payment-table tr:hover {
             background: #f8fafc;
@@ -458,7 +514,7 @@
             display: flex;
             align-items: center;
             gap: 6px;
-            font-size: 0.85rem; /* Уменьшили шрифт */
+            font-size: 0.85rem;
         }
         .modal-save-print-btn {
             background: #2c5282;
@@ -491,13 +547,13 @@
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
         }
         .phone-modal-title {
-            font-size: 1.1rem; /* Уменьшили шрифт */
+            font-size: 1.1rem;
             color: #1a3a5f;
             margin-bottom: 16px;
             font-weight: 600;
         }
         .phone-number-display {
-            font-size: 1.5rem; /* Было 1.7rem - уменьшили */
+            font-size: 1.5rem;
             font-weight: 700;
             color: #38a169;
             margin: 16px 0;
@@ -520,7 +576,7 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            font-size: 0.85rem; /* Уменьшили шрифт */
+            font-size: 0.85rem;
         }
         .copy-phone-btn {
             background: #2c5282;
@@ -538,7 +594,7 @@
         }
         .copy-success {
             color: #38a169;
-            font-size: 0.8rem; /* Уменьшили шрифт */
+            font-size: 0.8rem;
             margin-top: 8px;
             display: none;
         }
@@ -561,7 +617,7 @@
             border: 1px solid #cbd5e0;
             background: white;
             color: #4a5568;
-            font-size: 0.75rem; /* Уменьшили шрифт */
+            font-size: 0.75rem;
             font-weight: 600;
             cursor: pointer;
             display: flex;
@@ -582,7 +638,7 @@
             text-align: center;
             font-weight: 600;
             color: #1a3a5f;
-            font-size: 0.8rem; /* Уменьшили шрифт */
+            font-size: 0.8rem;
         }
         
         .term-controls {
@@ -598,7 +654,7 @@
             border: 1px solid #cbd5e0;
             background: white;
             color: #4a5568;
-            font-size: 0.75rem; /* Уменьшили шрифт */
+            font-size: 0.75rem;
             font-weight: 600;
             cursor: pointer;
             display: flex;
@@ -619,7 +675,7 @@
             text-align: center;
             font-weight: 600;
             color: #1a3a5f;
-            font-size: 0.8rem; /* Уменьшили шрифт */
+            font-size: 0.8rem;
         }
         
         .redemption-controls {
@@ -635,7 +691,7 @@
             border: 1px solid #cbd5e0;
             background: white;
             color: #4a5568;
-            font-size: 0.75rem; /* Уменьшили шрифт */
+            font-size: 0.75rem;
             font-weight: 600;
             cursor: pointer;
             display: flex;
@@ -656,7 +712,7 @@
             text-align: center;
             font-weight: 600;
             color: #1a3a5f;
-            font-size: 0.8rem; /* Уменьшили шрифт */
+            font-size: 0.8rem;
         }
     </style>
 </head>
@@ -671,12 +727,12 @@
             <h1><i class="fas fa-calculator"></i> Лизинговый калькулятор</h1>
             <p>Рассчитайте график платежей и налоговую экономию для вашего бизнеса</p>
             
-            <!-- Верхние иконки -->
+            <!-- Верхние иконки - ОБНОВЛЕНО: синий Telegram и зеленый телефон -->
             <div class="header-icons">
-                <a href="https://t.me/YWeliQ" class="header-icon-link" target="_blank" title="Написать в Telegram">
-                    <i class="fab fa-telegram"></i>
+                <a href="https://t.me/YWeliQ" class="header-icon-link telegram-icon" target="_blank" title="Написать в Telegram">
+                    <i class="fab fa-telegram-plane"></i>
                 </a>
-                <a href="tel:+79990387395" class="header-icon-link" title="Позвонить">
+                <a href="tel:+79990387395" class="header-icon-link phone-icon" title="Позвонить">
                     <i class="fas fa-phone"></i>
                 </a>
             </div>
@@ -798,15 +854,11 @@
                     <!-- Скрытое поле для времени заполнения -->
                     <input type="hidden" id="formStartTime" value="">
                     
+                    <!-- УДАЛЕНО: поле для email клиента -->
+                    
                     <div class="form-group">
                         <label for="name">Ваше имя <span style="color: #e53e3e;">*</span></label>
                         <input type="text" id="name" placeholder="Иван Иванов" required>
-                    </div>
-                    
-                    <!-- Поле для email клиента -->
-                    <div class="form-group">
-                        <label for="clientEmail">Ваш email <span style="color: #e53e3e;">*</span></label>
-                        <input type="email" id="clientEmail" placeholder="ivanov@example.com" required>
                     </div>
                     
                     <div class="form-group">
@@ -833,9 +885,13 @@
                         </div>
                     </div>
                     
+                    <!-- ОБНОВЛЕНО: 3 кнопки - Telegram, Email, Звонок -->
                     <div class="form-actions">
-                        <button class="form-action-btn manager-form-btn" id="sendToManagerBtn">
-                            <i class="fas fa-paper-plane"></i> Отправить расчёт менеджеру
+                        <button class="form-action-btn telegram-form-btn" id="sendToTelegramBtn">
+                            <i class="fab fa-telegram-plane"></i> Telegram
+                        </button>
+                        <button class="form-action-btn email-form-btn" id="sendToEmailBtn">
+                            <i class="fas fa-envelope"></i> На почту
                         </button>
                         <button class="form-action-btn phone-form-btn" id="callBtn">
                             <i class="fas fa-phone"></i> Позвонить
@@ -1030,7 +1086,8 @@
         const profitTaxSaveEl = document.getElementById('profitTaxSave');
         const totalAmountEl = document.getElementById('totalAmount');
         
-        const sendToManagerBtn = document.getElementById('sendToManagerBtn');
+        const sendToTelegramBtn = document.getElementById('sendToTelegramBtn');
+        const sendToEmailBtn = document.getElementById('sendToEmailBtn');
         const callBtn = document.getElementById('callBtn');
         const openScheduleBtn = document.getElementById('openScheduleBtn');
         const paymentModal = document.getElementById('paymentModal');
@@ -1047,7 +1104,6 @@
         
         const phoneInput = document.getElementById('phone');
         const phonePrefix = document.getElementById('phonePrefix');
-        const clientEmailInput = document.getElementById('clientEmail');
         const privacyAgreement = document.getElementById('privacyAgreement');
         const managerEmail = document.getElementById('managerEmail').value;
 
@@ -1075,16 +1131,15 @@
             return parseInt(formatted.replace(/\s/g, '')) || 0;
         }
 
-        // Маска для телефона с динамическим префиксом
+        // ИСПРАВЛЕНА: Маска для телефона с правильным выравниванием
         function formatPhoneInput(value) {
             let x = value.replace(/\D/g, '').match(/(\d{0,1})(\d{0,3})(\d{0,3})(\d{0,2})(\d{0,2})/);
             
             if (!x[2]) {
                 // Только префикс страны
-                phonePrefix.textContent = '+7';
                 return '';
             } else if (x[2] && !x[3]) {
-                // Код оператора без скобок
+                // Код оператора
                 phonePrefix.textContent = '+7 ' + x[2];
                 return '';
             } else if (x[2] && x[3] && !x[4]) {
@@ -1536,8 +1591,8 @@
             printWindow.print();
         }
 
-        // Функция отправки расчета менеджеру по email
-        function sendToManager() {
+        // Функция отправки расчета в Telegram
+        function sendToTelegram() {
             // Проверяем honeypot перед отправкой
             if (!checkHoneypot()) {
                 alert('Обнаружена подозрительная активность. Пожалуйста, обновите страницу.');
@@ -1557,20 +1612,90 @@
             }
             
             const name = document.getElementById('name').value.trim();
-            const clientEmail = clientEmailInput.value.trim();
             const phone = phoneInput.value.trim();
             const inn = document.getElementById('inn').value.trim();
             
             // Валидация обязательных полей
-            if (!name || !clientEmail || !phone) {
-                alert('Пожалуйста, заполните все обязательные поля: имя, email и телефон');
+            if (!name || !phone) {
+                alert('Пожалуйста, заполните все обязательные поля: имя и телефон');
                 return;
             }
             
-            // Валидация email
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(clientEmail)) {
-                alert('Пожалуйста, введите корректный email адрес');
+            // Валидация телефона (минимум 10 цифр)
+            const phoneDigits = phone.replace(/\D/g, '');
+            if (phoneDigits.length < 10) {
+                alert('Пожалуйста, введите корректный номер телефона');
+                return;
+            }
+            
+            // Формируем полный телефон
+            const fullPhone = '+7 ' + phone;
+            
+            // Формируем сообщение для Telegram
+            const message = `Здравствуйте! Я хочу рассчитать лизинг:
+
+💼 *Параметры расчета:*
+• Стоимость техники: ${formatCurrency(currentCalculation.carPrice)}
+• Первоначальный взнос: ${currentCalculation.advancePercent.toFixed(1)}% (${formatCurrency(currentCalculation.advanceAmount)})
+• Срок договора: ${currentCalculation.termMonths} мес.
+• Выкупной платеж: ${currentCalculation.redemptionPercent.toFixed(1)}% (${formatCurrency(currentCalculation.redemptionAmount)})
+
+📊 *Результаты расчета:*
+• Ежемесячный платеж: ${formatCurrency(currentCalculation.monthlyPayment)}
+• Налоговая экономия: ${formatCurrency(currentCalculation.totalTaxSavings)}
+• Общая стоимость договора: ${formatCurrency(currentCalculation.totalContractAmount)}
+
+👤 *Мои данные:*
+• Имя: ${name}
+• Телефон: ${fullPhone}
+${inn ? `• ИНН: ${inn}` : ''}
+
+📅 *Детали запроса:*
+• Дата и время: ${new Date().toLocaleString('ru-RU')}
+• User-Agent: ${navigator.userAgent.substring(0, 80)}...
+
+Хочу получить подробное коммерческое предложение!`;
+
+            const encodedMessage = encodeURIComponent(message);
+            const telegramUrl = `https://t.me/YWeliQ?text=${encodedMessage}`;
+            
+            // Открываем Telegram в новом окне
+            const newWindow = window.open(telegramUrl, '_blank', 'noopener,noreferrer');
+            if (newWindow) {
+                newWindow.opener = null;
+            }
+            
+            // Показываем подтверждение
+            alert('Открываю Telegram... Если Telegram не открылся, пожалуйста, проверьте, установлено ли приложение или используйте веб-версию.');
+        }
+
+        // Функция отправки расчета на почту
+        function sendToEmail() {
+            // Проверяем honeypot перед отправкой
+            if (!checkHoneypot()) {
+                alert('Обнаружена подозрительная активность. Пожалуйста, обновите страницу.');
+                return;
+            }
+            
+            // Проверяем время заполнения формы
+            if (!checkFormFillTime()) {
+                alert('Пожалуйста, заполняйте форму более внимательно. Минимальное время заполнения - 1 секунда.');
+                return;
+            }
+            
+            // Проверяем согласие на обработку данных
+            if (!privacyAgreement.checked) {
+                alert('Пожалуйста, дайте согласие на обработку персональных данных.');
+                return;
+            }
+            
+            const name = document.getElementById('name').value.trim();
+            const phone = phoneInput.value.trim();
+            const inn = document.getElementById('inn').value.trim();
+            
+            // Валидация обязательных полей
+            if (!name || !phone) {
+                alert('Пожалуйста, заполните все обязательные поля: имя и телефон');
                 return;
             }
             
@@ -1592,7 +1717,6 @@
 
 📋 КОНТАКТНЫЕ ДАННЫЕ:
 • Имя: ${name}
-• Email: ${clientEmail}
 • Телефон: ${fullPhone}
 ${inn ? `• ИНН организации: ${inn}` : ''}
 
@@ -1735,7 +1859,7 @@ ${inn ? `• ИНН организации: ${inn}` : ''}
                 }
             });
 
-            // Маска для телефона с динамическим префиксом
+            // Маска для телефона с правильным выравниванием
             phoneInput.addEventListener('input', function(e) {
                 this.value = formatPhoneInput(this.value);
             });
@@ -1747,18 +1871,13 @@ ${inn ? `• ИНН организации: ${inn}` : ''}
                 }
             });
 
-            // Валидация email
-            clientEmailInput.addEventListener('blur', function() {
-                const email = this.value.trim();
-                if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-                    alert('Пожалуйста, введите корректный email адрес');
-                    this.focus();
-                }
+            // Обработчики для кнопок отправки
+            sendToTelegramBtn.addEventListener('click', function() {
+                sendToTelegram();
             });
-
-            // Обработчики для кнопок отправки и сохранения
-            sendToManagerBtn.addEventListener('click', function() {
-                sendToManager();
+            
+            sendToEmailBtn.addEventListener('click', function() {
+                sendToEmail();
             });
             
             callBtn.addEventListener('click', function() {
