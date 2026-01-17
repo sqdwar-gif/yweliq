@@ -1,0 +1,1312 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Лизинговый калькулятор</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
+        body { background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%); color: #333; line-height: 1.6; padding: 20px; min-height: 100vh; }
+        .container { max-width: 1100px; margin: 0 auto; background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08); overflow: hidden; }
+        header { 
+            background: linear-gradient(to right, #1a3a5f, #2c5282); 
+            color: white; 
+            padding: 30px; 
+            text-align: center;
+        }
+        header h1 { font-size: 2.2rem; margin-bottom: 10px; }
+        header p { opacity: 0.9; font-size: 1.1rem; }
+        
+        .calculator-wrapper { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 30px; padding: 30px; }
+        @media (max-width: 768px) { 
+            .calculator-wrapper { grid-template-columns: 1fr; }
+        }
+        .input-section, .result-section { background: #f8fafc; padding: 25px; border-radius: 15px; border: 1px solid #e2e8f0; }
+        .section-title { font-size: 1.4rem; color: #1a3a5f; margin-bottom: 25px; padding-bottom: 10px; border-bottom: 2px solid #e2e8f0; display: flex; align-items: center; gap: 10px; }
+        .input-group { margin-bottom: 25px; }
+        .input-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .input-header label { font-weight: 600; color: #2d3748; }
+        .input-header .value-container { 
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 2px;
+        }
+        .input-header .value { 
+            font-weight: 700; 
+            color: #1a3a5f; 
+            background: #e2e8f0; 
+            padding: 2px 10px; 
+            border-radius: 10px; 
+            font-size: 0.95rem; 
+            min-width: 60px; 
+            text-align: center;
+            min-height: 24px;
+        }
+        .input-header .value-rub { 
+            font-weight: 600; 
+            color: #4a5568; 
+            font-size: 0.8rem; 
+            text-align: right;
+            padding: 1px 5px;
+        }
+        .range-slider { width: 100%; height: 8px; -webkit-appearance: none; background: #cbd5e0; border-radius: 5px; outline: none; margin-bottom: 5px; }
+        .range-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; background: #2c5282; border-radius: 50%; cursor: pointer; border: 3px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .range-limits { display: flex; justify-content: space-between; margin-top: 5px; font-size: 0.85rem; color: #718096; }
+        
+        /* Стили для полей ввода с маской */
+        .input-with-controls { display: flex; align-items: center; gap: 15px; }
+        .money-input { 
+            width: 200px; 
+            padding: 12px 15px; 
+            border: 1px solid #cbd5e0; 
+            border-radius: 10px; 
+            font-size: 1rem; 
+            font-weight: 600;
+            color: #1a3a5f;
+            text-align: right;
+            letter-spacing: 0.5px;
+        }
+        .money-input:focus { 
+            outline: none; 
+            border-color: #2c5282; 
+            box-shadow: 0 0 0 3px rgba(44, 82, 130, 0.1); 
+        }
+        .input-suffix { 
+            font-weight: 600; 
+            color: #4a5568; 
+            white-space: nowrap;
+        }
+        
+        .result-box { background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px; border-left: 5px solid #2c5282; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.03); }
+        .result-main { border-left-color: #e67e22; background: linear-gradient(to right, #fffaf0, #fff5e6); }
+        .result-label { font-size: 0.95rem; color: #4a5568; margin-bottom: 5px; }
+        .result-value { font-size: 2rem; font-weight: 800; color: #1a3a5f; }
+        .result-note { font-size: 0.85rem; color: #e67e22; margin-top: 8px; font-style: italic; }
+        .result-sub { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 25px; }
+        .disclaimer { font-size: 0.8rem; color: #718096; text-align: center; margin-top: 30px; padding: 15px; border-top: 1px solid #e2e8f0; line-height: 1.5; }
+        .info-icon { color: #2c5282; margin-left: 5px; cursor: help; }
+        .contact-form { margin-top: 30px; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: #2d3748; }
+        .form-group input { 
+            width: 100%; 
+            padding: 12px 15px; 
+            border: 1px solid #cbd5e0; 
+            border-radius: 10px; 
+            font-size: 1rem; 
+            transition: all 0.3s ease;
+        }
+        .form-group input:focus { 
+            outline: none; 
+            border-color: #2c5282; 
+            box-shadow: 0 0 0 3px rgba(44, 82, 130, 0.1); 
+        }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .form-optional { color: #718096; font-size: 0.9rem; }
+        
+        /* Компактные стили для налоговой экономии */
+        .tax-savings-compact {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .tax-savings-item {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            border: 1px solid #e2e8f0;
+            text-align: center;
+        }
+        .tax-savings-label {
+            font-size: 0.8rem;
+            color: #4a5568;
+            margin-bottom: 8px;
+            line-height: 1.3;
+            height: 2.2em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .tax-savings-value {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #1a3a5f;
+        }
+        
+        /* Стили для подвала результата */
+        .result-footer {
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid #e2e8f0;
+        }
+        .total-contract {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: #f0f7ff;
+            border-radius: 10px;
+            border: 1px solid #c3dafe;
+        }
+        .total-label {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #2d3748;
+        }
+        .total-value {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #1a3a5f;
+        }
+        
+        /* Стили для кнопок действий в форме */
+        .form-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        .form-action-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            text-align: center;
+        }
+        .telegram-form-btn {
+            background: linear-gradient(to right, #0088cc, #0077b5);
+            color: white;
+        }
+        .phone-form-btn {
+            background: linear-gradient(to right, #38a169, #2f855a);
+            color: white;
+        }
+        .form-action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Стили для кнопки сохранения графика */
+        .save-btn-container {
+            margin-top: 25px;
+        }
+        .save-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            background: linear-gradient(to right, #e67e22, #d35400);
+            color: white;
+        }
+        .save-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(230, 126, 34, 0.3);
+        }
+        
+        /* Модальное окно для графика платежей */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        .modal-title {
+            font-size: 1.5rem;
+            color: #1a3a5f;
+            font-weight: 700;
+        }
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #718096;
+            padding: 5px;
+        }
+        .close-modal:hover {
+            color: #e53e3e;
+        }
+        .payment-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        .payment-table th {
+            background: #f7fafc;
+            padding: 12px 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #2d3748;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        .payment-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e2e8f0;
+            color: #4a5568;
+        }
+        .payment-table tr:hover {
+            background: #f8fafc;
+        }
+        .payment-table .month {
+            font-weight: 600;
+            color: #1a3a5f;
+        }
+        .payment-table .total-row {
+            background: #f0f7ff;
+            font-weight: 700;
+            color: #1a3a5f;
+        }
+        
+        /* Кнопки действий в модальном окне - теперь вверху */
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .modal-action-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .modal-pdf-btn {
+            background: #e53e3e;
+            color: white;
+        }
+        .modal-pdf-btn:hover {
+            background: #c53030;
+        }
+        .modal-print-btn {
+            background: #2c5282;
+            color: white;
+        }
+        .modal-print-btn:hover {
+            background: #1a3a5f;
+        }
+        
+        /* Модальное окно для номера телефона */
+        .phone-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1001;
+            justify-content: center;
+            align-items: center;
+        }
+        .phone-modal-content {
+            background: white;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 400px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        .phone-modal-title {
+            font-size: 1.3rem;
+            color: #1a3a5f;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        .phone-number-display {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #e53e3e;
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8fafc;
+            border-radius: 10px;
+            border: 2px solid #e2e8f0;
+        }
+        .phone-modal-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 25px;
+        }
+        .phone-modal-btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .copy-phone-btn {
+            background: #2c5282;
+            color: white;
+        }
+        .copy-phone-btn:hover {
+            background: #1a3a5f;
+        }
+        .close-phone-btn {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+        .close-phone-btn:hover {
+            background: #cbd5e0;
+        }
+        .copy-success {
+            color: #38a169;
+            font-size: 0.9rem;
+            margin-top: 10px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-calculator"></i> Лизинговый калькулятор</h1>
+            <p>Рассчитайте график платежей и налоговую экономию для вашего бизнеса</p>
+        </header>
+
+        <div class="calculator-wrapper">
+            <section class="input-section">
+                <h2 class="section-title"><i class="fas fa-sliders-h"></i> Параметры лизинга</h2>
+                
+                <div class="input-group">
+                    <div class="input-header">
+                        <label for="priceInput">Стоимость авто</label>
+                        <div class="value-container">
+                            <span class="value" id="priceValue">1 500 000 ₽</span>
+                            <span class="value-rub" id="pricePercent">100%</span>
+                        </div>
+                    </div>
+                    <div class="input-with-controls">
+                        <input type="text" id="priceInput" class="money-input" value="1 500 000" data-max="50 000 000">
+                        <span class="input-suffix">₽</span>
+                    </div>
+                    <div class="range-limits"><span>500 000 ₽</span><span>50 000 000 ₽</span></div>
+                </div>
+                
+                <div class="input-group">
+                    <div class="input-header">
+                        <label for="advanceSlider">Первоначальный взнос</label>
+                        <div class="value-container">
+                            <span class="value" id="advanceValue">20%</span>
+                            <span class="value-rub" id="advanceRub">300 000 ₽</span>
+                        </div>
+                    </div>
+                    <div class="input-with-controls">
+                        <input type="range" id="advanceSlider" class="range-slider" min="5" max="50" step="0.01" value="20">
+                        <span class="input-suffix">%</span>
+                    </div>
+                    <div class="range-limits"><span>5%</span><span>50%</span></div>
+                </div>
+                
+                <div class="input-group">
+                    <div class="input-header">
+                        <label for="termSlider">Срок договора</label>
+                        <div class="value-container">
+                            <span class="value" id="termValue">36</span>
+                            <span class="value-rub">месяцев</span>
+                        </div>
+                    </div>
+                    <input type="range" id="termSlider" class="range-slider" min="6" max="60" value="36">
+                    <div class="range-limits"><span>6 мес.</span><span>60 мес.</span></div>
+                </div>
+                
+                <div class="input-group">
+                    <div class="input-header">
+                        <label for="redemptionSlider">Выкупной платеж</label>
+                        <div class="value-container">
+                            <span class="value" id="redemptionValue">10%</span>
+                            <span class="value-rub" id="redemptionRub">150 000 ₽</span>
+                        </div>
+                    </div>
+                    <div class="input-with-controls">
+                        <input type="range" id="redemptionSlider" class="range-slider" min="0" max="15" step="0.01" value="10">
+                        <span class="input-suffix">%</span>
+                    </div>
+                    <div class="range-limits"><span>0%</span><span>15%</span></div>
+                </div>
+
+                <div class="contact-form">
+                    <h2 class="section-title"><i class="fas fa-user"></i> Контактная информация</h2>
+                    
+                    <div class="form-group">
+                        <label for="name">Ваше имя <span style="color: #e53e3e;">*</span></label>
+                        <input type="text" id="name" placeholder="Иван Иванов" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="phone">Номер телефона <span style="color: #e53e3e;">*</span></label>
+                        <input type="tel" id="phone" placeholder="+7 (999) 123-45-67" value="+7 (" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="inn">ИНН организации <span class="form-optional">(не обязательно)</span></label>
+                        <input type="text" id="inn" placeholder="1234567890" maxlength="12">
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button class="form-action-btn telegram-form-btn" id="sendToTelegramBtn">
+                            <i class="fab fa-telegram"></i> Отправить в Telegram
+                        </button>
+                        <button class="form-action-btn phone-form-btn" id="callBtn">
+                            <i class="fas fa-phone"></i> Позвонить
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <section class="result-section">
+                <h2 class="section-title"><i class="fas fa-chart-bar"></i> Результаты расчета</h2>
+                
+                <div class="result-box result-main">
+                    <div class="result-label">Ежемесячный платеж</div>
+                    <div class="result-value" id="monthlyPayment">72 385 ₽</div>
+                </div>
+                
+                <div class="result-box">
+                    <div class="result-label">Налоговая экономия <i class="fas fa-question-circle info-icon" title="Экономия рассчитана в сравнении с покупкой за собственные средства"></i></div>
+                    <div class="result-value" id="taxSaving">1 362 631 ₽</div>
+                </div>
+                
+                <!-- Компактный блок налоговой экономии -->
+                <div class="tax-savings-compact">
+                    <div class="tax-savings-item">
+                        <div class="tax-savings-label">НДС к возмещению (22%)</div>
+                        <div class="tax-savings-value" id="ndsSave">636 942 ₽</div>
+                    </div>
+                    <div class="tax-savings-item">
+                        <div class="tax-savings-label">Экономия по налогу на прибыль (25%)</div>
+                        <div class="tax-savings-value" id="profitTaxSave">725 689 ₽</div>
+                    </div>
+                </div>
+                
+                <!-- Подвал с общей суммой -->
+                <div class="result-footer">
+                    <div class="total-contract">
+                        <div class="total-label">Общая сумма договора</div>
+                        <div class="total-value" id="totalAmount">3 564 857 ₽</div>
+                    </div>
+                </div>
+                
+                <!-- Кнопка сохранения графика -->
+                <div class="save-btn-container">
+                    <button class="save-btn" id="saveScheduleBtn">
+                        <i class="fas fa-download"></i> Сохранить график платежей
+                    </button>
+                </div>
+            </section>
+        </div>
+        
+        <div class="disclaimer">
+            * Цена представляет ориентировочный расчет, и не является конечной. Для получения точного коммерческого предложения свяжитесь с нами.<br>
+            Все экономические выгоды приведены в сравнении с покупкой за собственные средства. Возмещение НДС — если компания является плательщиком НДС и применяет общую систему налогообложения.
+        </div>
+    </div>
+
+    <!-- Модальное окно графика платежей -->
+    <div class="modal-overlay" id="paymentModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">График платежей по лизингу</h2>
+                <button class="close-modal" id="closeModal">&times;</button>
+            </div>
+            
+            <!-- Кнопки действий вверху модального окна -->
+            <div class="modal-actions">
+                <button class="modal-action-btn modal-pdf-btn" id="downloadPdfBtn">
+                    <i class="fas fa-file-pdf"></i> Скачать PDF
+                </button>
+                <button class="modal-action-btn modal-print-btn" id="printScheduleBtn">
+                    <i class="fas fa-print"></i> Распечатать
+                </button>
+            </div>
+            
+            <div id="paymentScheduleContent">
+                <!-- Здесь будет генерироваться график платежей -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно для номера телефона -->
+    <div class="phone-modal" id="phoneModal">
+        <div class="phone-modal-content">
+            <h2 class="phone-modal-title">Контактный телефон</h2>
+            <div class="phone-number-display" id="phoneNumberText">8 999 038-73-95</div>
+            <p style="color: #718096; margin-bottom: 20px;">Скопируйте номер или нажмите "Позвонить" для звонка с мобильного телефона</p>
+            
+            <div class="phone-modal-buttons">
+                <button class="phone-modal-btn copy-phone-btn" id="copyPhoneBtn">
+                    <i class="fas fa-copy"></i> Скопировать
+                </button>
+                <a href="tel:+79990387395" class="phone-modal-btn copy-phone-btn" id="callNowBtn">
+                    <i class="fas fa-phone"></i> Позвонить
+                </a>
+                <button class="phone-modal-btn close-phone-btn" id="closePhoneModal">
+                    Закрыть
+                </button>
+            </div>
+            <div class="copy-success" id="copySuccess">Номер скопирован в буфер обмена!</div>
+        </div>
+    </div>
+
+    <script>
+        // Глобальные переменные для хранения данных расчета
+        let currentCalculation = {
+            monthlyPayment: 0,
+            totalTaxSavings: 0,
+            vatSavings: 0,
+            profitTaxSavings: 0,
+            totalContractAmount: 0,
+            carPrice: 0,
+            advancePercent: 0,
+            advanceAmount: 0,
+            termMonths: 0,
+            redemptionPercent: 0,
+            redemptionAmount: 0,
+            paymentSchedule: []
+        };
+
+        // Получаем элементы
+        const priceInput = document.getElementById('priceInput');
+        const priceValue = document.getElementById('priceValue');
+        const pricePercent = document.getElementById('pricePercent');
+        
+        const advanceSlider = document.getElementById('advanceSlider');
+        const advanceValue = document.getElementById('advanceValue');
+        const advanceRub = document.getElementById('advanceRub');
+        
+        const termSlider = document.getElementById('termSlider');
+        const termValue = document.getElementById('termValue');
+        
+        const redemptionSlider = document.getElementById('redemptionSlider');
+        const redemptionValue = document.getElementById('redemptionValue');
+        const redemptionRub = document.getElementById('redemptionRub');
+        
+        const monthlyPaymentEl = document.getElementById('monthlyPayment');
+        const taxSavingEl = document.getElementById('taxSaving');
+        const ndsSaveEl = document.getElementById('ndsSave');
+        const profitTaxSaveEl = document.getElementById('profitTaxSave');
+        const totalAmountEl = document.getElementById('totalAmount');
+        
+        const sendToTelegramBtn = document.getElementById('sendToTelegramBtn');
+        const callBtn = document.getElementById('callBtn');
+        const saveScheduleBtn = document.getElementById('saveScheduleBtn');
+        const paymentModal = document.getElementById('paymentModal');
+        const closeModal = document.getElementById('closeModal');
+        const paymentScheduleContent = document.getElementById('paymentScheduleContent');
+        const downloadPdfBtn = document.getElementById('downloadPdfBtn');
+        const printScheduleBtn = document.getElementById('printScheduleBtn');
+        
+        const phoneModal = document.getElementById('phoneModal');
+        const phoneNumberText = document.getElementById('phoneNumberText');
+        const copyPhoneBtn = document.getElementById('copyPhoneBtn');
+        const callNowBtn = document.getElementById('callNowBtn');
+        const closePhoneModal = document.getElementById('closePhoneModal');
+        const copySuccess = document.getElementById('copySuccess');
+
+        // Функции форматирования
+        function formatNumber(num) {
+            return Math.round(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+        }
+
+        function formatCurrency(num) {
+            return formatNumber(num) + ' ₽';
+        }
+
+        // Функция для форматирования ввода денег
+        function formatMoneyInput(value) {
+            // Удаляем все нецифры
+            let cleanValue = value.replace(/\D/g, '');
+            // Ограничиваем максимальное значение
+            const maxValue = 50000000;
+            if (parseInt(cleanValue) > maxValue) {
+                cleanValue = maxValue.toString();
+            }
+            // Форматируем с пробелами
+            return cleanValue.replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+        }
+
+        // Функция для парсинга форматированного числа
+        function parseFormattedNumber(formatted) {
+            return parseInt(formatted.replace(/\s/g, '')) || 0;
+        }
+
+        // Функция для обновления отображения сумм в рублях под процентами
+        function updateAmountDisplays() {
+            const carPrice = parseFormattedNumber(priceInput.value);
+            
+            // Обновление аванса в рублях
+            const advancePercent = parseFloat(advanceSlider.value);
+            const advanceAmount = Math.round(carPrice * advancePercent / 100);
+            advanceRub.textContent = formatCurrency(advanceAmount);
+            
+            // Обновление выкупного платежа в рублях
+            let redemptionPercent = parseFloat(redemptionSlider.value);
+            // Ограничиваем максимум 15%
+            if (redemptionPercent > 15) {
+                redemptionPercent = 15;
+                redemptionSlider.value = redemptionPercent;
+            }
+            const redemptionAmount = Math.round(carPrice * redemptionPercent / 100);
+            redemptionRub.textContent = formatCurrency(redemptionAmount);
+            
+            // Для стоимости авто всегда показываем 100%
+            pricePercent.textContent = "100%";
+        }
+
+        // Расчет аннуитетного платежа
+        function calculateAnnuity(principal, monthlyRate, months) {
+            if (monthlyRate === 0) return principal / months;
+            const coefficient = (monthlyRate * Math.pow(1 + monthlyRate, months)) / 
+                               (Math.pow(1 + monthlyRate, months) - 1);
+            return principal * coefficient;
+        }
+
+        // Функция для генерации графика платежей
+        function generatePaymentSchedule(carPrice, monthlyPayment, termMonths, advanceAmount, redemptionAmount) {
+            const schedule = [];
+            let remainingBalance = carPrice - advanceAmount - redemptionAmount;
+            const monthlyRate = 0.15 / 12; // 15% годовых
+            
+            for (let month = 1; month <= termMonths; month++) {
+                schedule.push({
+                    month: month,
+                    payment: monthlyPayment,
+                    remainingBalance: remainingBalance > 0 ? remainingBalance : 0
+                });
+                
+                // Уменьшаем остаток долга
+                const interestPayment = remainingBalance * monthlyRate;
+                const principalPayment = monthlyPayment - interestPayment;
+                remainingBalance -= principalPayment;
+            }
+            
+            return schedule;
+        }
+
+        // Основная функция расчетов
+        function calculateLeasing() {
+            // Получаем значения
+            const carPrice = parseFormattedNumber(priceInput.value);
+            if (carPrice < 500000) {
+                priceInput.value = '500 000';
+                return;
+            }
+            
+            // Получаем аванс (только проценты)
+            const advancePercent = parseFloat(advanceSlider.value);
+            const advanceAmount = carPrice * advancePercent / 100;
+            
+            // Получаем выкупной платеж (только проценты)
+            let redemptionPercent = parseFloat(redemptionSlider.value);
+            // Ограничиваем максимум 15%
+            if (redemptionPercent > 15) {
+                redemptionPercent = 15;
+                redemptionSlider.value = redemptionPercent;
+            }
+            const redemptionAmount = carPrice * redemptionPercent / 100;
+            
+            const termMonths = parseFloat(termSlider.value);
+
+            // Параметры (НДС 22% с 2026 года, налог на прибыль 25%)
+            const vatRate = 0.22;          // НДС 22%
+            const profitTaxRate = 0.25;    // Налог на прибыль 25%
+            const annualRate = 0.15;       // Годовая ставка 15%
+            const commissionRate = 0.08;   // Комиссия 8% годовых
+            const insuranceRate = 0.05;    // Страховка 5% годовых
+            const serviceFee = 50000;      // Единовременная комиссия
+            const markup = 1.07;           // Надбавка 7% (скрыто от пользователя)
+
+            // Расчет финансируемой суммы
+            const financedAmount = carPrice - advanceAmount - redemptionAmount;
+            if (financedAmount < 0) {
+                // Если сумма отрицательная, корректируем выкупной платеж
+                const newRedemptionAmount = carPrice - advanceAmount;
+                const newRedemptionPercent = (newRedemptionAmount / carPrice * 100);
+                if (newRedemptionPercent > 15) {
+                    // Если все равно больше 15%, устанавливаем 15%
+                    redemptionPercent = 15;
+                    redemptionAmount = carPrice * redemptionPercent / 100;
+                } else {
+                    redemptionPercent = newRedemptionPercent;
+                    redemptionAmount = newRedemptionAmount;
+                }
+                redemptionSlider.value = redemptionPercent.toFixed(2);
+            }
+
+            // Расчет ежемесячных компонентов
+            const monthlyRate = annualRate / 12;
+            const basePayment = calculateAnnuity(financedAmount, monthlyRate, termMonths);
+            
+            // Дополнительные расходы
+            const insuranceMonthly = carPrice * insuranceRate / 12;
+            const averageDebt = financedAmount / 2;
+            const commissionMonthly = averageDebt * commissionRate / 12;
+            
+            // Базовая сумма платежа
+            let baseMonthlyPayment = basePayment + insuranceMonthly + commissionMonthly + (serviceFee / termMonths);
+            
+            // Финальный платеж с учетом надбавки
+            let finalMonthlyPayment = baseMonthlyPayment * markup;
+
+            // Расчет общих сумм
+            const totalMonthlyPayments = finalMonthlyPayment * termMonths;
+            const totalContractAmount = advanceAmount + totalMonthlyPayments + redemptionAmount;
+
+            // Расчет налоговой экономии
+            const carPriceWithoutVAT = carPrice / (1 + vatRate);
+            const vatInCarPrice = carPrice - carPriceWithoutVAT;
+            
+            // Экономия по налогу на прибыль (платежи идут в расходы)
+            const paymentsWithoutVAT = totalMonthlyPayments / (1 + vatRate);
+            const profitTaxSavings = paymentsWithoutVAT * profitTaxRate;
+            
+            // Общая налоговая экономия
+            const totalTaxSavings = vatInCarPrice + profitTaxSavings;
+
+            // Генерация графика платежей
+            const paymentSchedule = generatePaymentSchedule(carPrice, finalMonthlyPayment, termMonths, advanceAmount, redemptionAmount);
+
+            // Сохранение данных
+            currentCalculation = {
+                monthlyPayment: finalMonthlyPayment,
+                totalTaxSavings: totalTaxSavings,
+                vatSavings: vatInCarPrice,
+                profitTaxSavings: profitTaxSavings,
+                totalContractAmount: totalContractAmount,
+                carPrice: carPrice,
+                advancePercent: advancePercent,
+                advanceAmount: advanceAmount,
+                termMonths: termMonths,
+                redemptionPercent: redemptionPercent,
+                redemptionAmount: redemptionAmount,
+                paymentSchedule: paymentSchedule
+            };
+
+            // Обновление интерфейса
+            monthlyPaymentEl.textContent = formatCurrency(finalMonthlyPayment);
+            taxSavingEl.textContent = formatCurrency(totalTaxSavings);
+            ndsSaveEl.textContent = formatCurrency(vatInCarPrice);
+            profitTaxSaveEl.textContent = formatCurrency(profitTaxSavings);
+            totalAmountEl.textContent = formatCurrency(totalContractAmount);
+            
+            // Обновление отображаемых значений
+            priceValue.textContent = formatCurrency(carPrice);
+            advanceValue.textContent = advancePercent.toFixed(2) + '%';
+            redemptionValue.textContent = redemptionPercent.toFixed(2) + '%';
+            termValue.textContent = termMonths;
+            
+            // Обновление сумм в рублях под процентами
+            updateAmountDisplays();
+        }
+
+        // Функция для копирования номера телефона
+        function copyPhoneNumber() {
+            const phoneNumber = '89990387395';
+            navigator.clipboard.writeText(phoneNumber)
+                .then(() => {
+                    copySuccess.style.display = 'block';
+                    setTimeout(() => {
+                        copySuccess.style.display = 'none';
+                    }, 2000);
+                })
+                .catch(err => {
+                    console.error('Ошибка копирования: ', err);
+                    // Альтернативный способ копирования
+                    const textArea = document.createElement('textarea');
+                    textArea.value = phoneNumber;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textArea);
+                    
+                    copySuccess.style.display = 'block';
+                    setTimeout(() => {
+                        copySuccess.style.display = 'none';
+                    }, 2000);
+                });
+        }
+
+        // Функция для отображения графика платежей
+        function showPaymentSchedule() {
+            const schedule = currentCalculation.paymentSchedule;
+            let html = `
+                <div style="margin-bottom: 20px; background: #f0f7ff; padding: 15px; border-radius: 10px;">
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
+                        <div>
+                            <strong>Ежемесячный платеж:</strong><br>
+                            ${formatCurrency(currentCalculation.monthlyPayment)}
+                        </div>
+                        <div>
+                            <strong>Общая сумма договора:</strong><br>
+                            ${formatCurrency(currentCalculation.totalContractAmount)}
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="overflow-x: auto;">
+                    <table class="payment-table">
+                        <thead>
+                            <tr>
+                                <th>Месяц</th>
+                                <th>Платеж</th>
+                            </tr>
+                        </thead>
+                        <tbody>`;
+            
+            schedule.forEach(item => {
+                html += `
+                    <tr>
+                        <td class="month">${item.month}</td>
+                        <td>${formatCurrency(item.payment)}</td>
+                    </tr>`;
+            });
+            
+            // В ИТОГО теперь показываем общую сумму договора (все платежи + аванс + выкуп)
+            const totalContract = currentCalculation.totalContractAmount;
+            
+            html += `
+                        </tbody>
+                        <tfoot>
+                            <tr class="total-row">
+                                <td>ИТОГО за ${currentCalculation.termMonths} мес. (включая аванс и выкуп)</td>
+                                <td>${formatCurrency(totalContract)}</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                
+                <div style="margin-top: 20px; padding: 15px; background: #f8fafc; border-radius: 10px; font-size: 0.9rem; color: #4a5568;">
+                    <strong>Внимание:</strong> Итоговая сумма включает все платежи по договору лизинга, включая первоначальный взнос и выкупной платеж.
+                </div>`;
+            
+            paymentScheduleContent.innerHTML = html;
+            paymentModal.style.display = 'flex';
+        }
+
+        // Функция для генерации PDF с поддержкой кириллицы
+        function generatePDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            // Добавляем кириллический шрифт (стандартный шрифт поддерживает кириллицу)
+            // Используем стандартный шрифт, который поддерживает кириллицу
+            doc.setFont("helvetica");
+            doc.setFontSize(18);
+            
+            // Заголовок
+            doc.text('График платежей по лизингу', 105, 20, { align: 'center' });
+            
+            doc.setFontSize(11);
+            doc.text(`Дата формирования: ${new Date().toLocaleDateString('ru-RU')}`, 105, 30, { align: 'center' });
+            
+            // Параметры расчета
+            doc.setFontSize(12);
+            doc.text('Параметры расчета:', 20, 45);
+            
+            doc.setFontSize(10);
+            let yPos = 55;
+            doc.text(`• Стоимость авто: ${formatCurrency(currentCalculation.carPrice)}`, 25, yPos);
+            yPos += 7;
+            doc.text(`• Первоначальный взнос: ${currentCalculation.advancePercent.toFixed(2)}% (${formatCurrency(currentCalculation.advanceAmount)})`, 25, yPos);
+            yPos += 7;
+            doc.text(`• Срок договора: ${currentCalculation.termMonths} мес.`, 25, yPos);
+            yPos += 7;
+            doc.text(`• Выкупной платеж: ${currentCalculation.redemptionPercent.toFixed(2)}% (${formatCurrency(currentCalculation.redemptionAmount)})`, 25, yPos);
+            yPos += 7;
+            doc.text(`• Ежемесячный платеж: ${formatCurrency(currentCalculation.monthlyPayment)}`, 25, yPos);
+            yPos += 7;
+            doc.text(`• Общая сумма договора: ${formatCurrency(currentCalculation.totalContractAmount)}`, 25, yPos);
+            
+            // Таблица графика платежей
+            yPos += 15;
+            
+            // Подготавливаем данные для таблицы
+            const tableData = currentCalculation.paymentSchedule.map(item => [
+                item.month.toString(),
+                formatCurrency(item.payment)
+            ]);
+            
+            // Добавляем итоговую строку
+            tableData.push([
+                `ИТОГО за ${currentCalculation.termMonths} мес. (включая аванс и выкуп)`,
+                formatCurrency(currentCalculation.totalContractAmount)
+            ]);
+            
+            // Создаем таблицу с autotable
+            doc.autoTable({
+                startY: yPos,
+                head: [['Месяц', 'Платеж']],
+                body: tableData.slice(0, -1), // Все кроме последней строки
+                foot: [tableData[tableData.length - 1]], // Последняя строка как футер
+                headStyles: { 
+                    fillColor: [44, 82, 130],
+                    textColor: [255, 255, 255],
+                    fontStyle: 'bold'
+                },
+                footStyles: { 
+                    fillColor: [240, 247, 255],
+                    textColor: [26, 58, 95],
+                    fontStyle: 'bold'
+                },
+                styles: { 
+                    fontSize: 10,
+                    cellPadding: 5,
+                    overflow: 'linebreak'
+                },
+                columnStyles: {
+                    0: { cellWidth: 30 },
+                    1: { cellWidth: 60, halign: 'right' }
+                },
+                margin: { left: 20, right: 20 },
+                didDrawPage: function(data) {
+                    // Добавляем примечание после таблицы
+                    const finalY = data.cursor.y + 10;
+                    if (finalY < 280) {
+                        doc.setFontSize(9);
+                        doc.setFontStyle('italic');
+                        doc.text('Примечание: Итоговая сумма включает все платежи по договору лизинга, включая первоначальный взнос и выкупной платеж.', 20, finalY, { maxWidth: 170 });
+                    }
+                }
+            });
+            
+            // Сохранение PDF
+            doc.save(`график_платежей_лизинг_${new Date().toISOString().split('T')[0]}.pdf`);
+        }
+
+        // Альтернативная функция для генерации PDF (более простая)
+        function generatePDFAlternative() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            // Устанавливаем шрифт, который поддерживает кириллицу
+            doc.setFont("helvetica");
+            
+            // Заголовок
+            doc.setFontSize(18);
+            doc.text("График платежей по лизингу", 105, 20, { align: "center" });
+            
+            doc.setFontSize(11);
+            doc.text(`Дата формирования: ${new Date().toLocaleDateString('ru-RU')}`, 105, 30, { align: "center" });
+            
+            // Параметры расчета
+            doc.setFontSize(12);
+            doc.text("Параметры расчета:", 20, 45);
+            
+            doc.setFontSize(10);
+            let y = 55;
+            const params = [
+                `Стоимость авто: ${formatCurrency(currentCalculation.carPrice)}`,
+                `Первоначальный взнос: ${currentCalculation.advancePercent.toFixed(2)}% (${formatCurrency(currentCalculation.advanceAmount)})`,
+                `Срок договора: ${currentCalculation.termMonths} мес.`,
+                `Выкупной платеж: ${currentCalculation.redemptionPercent.toFixed(2)}% (${formatCurrency(currentCalculation.redemptionAmount)})`,
+                `Ежемесячный платеж: ${formatCurrency(currentCalculation.monthlyPayment)}`,
+                `Общая сумма договора: ${formatCurrency(currentCalculation.totalContractAmount)}`
+            ];
+            
+            params.forEach(param => {
+                doc.text("• " + param, 25, y);
+                y += 7;
+            });
+            
+            // Таблица графика платежей
+            y += 10;
+            doc.setFontSize(12);
+            doc.text("График платежей:", 20, y);
+            y += 10;
+            
+            // Заголовок таблицы
+            doc.setFontSize(10);
+            doc.setFontStyle("bold");
+            doc.text("Месяц", 25, y);
+            doc.text("Платеж", 150, y, { align: "right" });
+            y += 7;
+            
+            doc.setFontStyle("normal");
+            doc.line(20, y, 190, y);
+            y += 5;
+            
+            // Данные таблицы
+            currentCalculation.paymentSchedule.forEach(item => {
+                if (y > 270) {
+                    doc.addPage();
+                    y = 20;
+                }
+                doc.text(item.month.toString(), 25, y);
+                doc.text(formatCurrency(item.payment), 150, y, { align: "right" });
+                y += 7;
+            });
+            
+            // Итоговая строка
+            y += 5;
+            doc.line(20, y, 190, y);
+            y += 7;
+            
+            doc.setFontStyle("bold");
+            doc.text(`ИТОГО за ${currentCalculation.termMonths} мес. (включая аванс и выкуп)`, 25, y);
+            doc.text(formatCurrency(currentCalculation.totalContractAmount), 150, y, { align: "right" });
+            
+            // Примечание
+            y += 15;
+            doc.setFontStyle("italic");
+            doc.setFontSize(9);
+            doc.text("Примечание: Итоговая сумма включает все платежи по договору лизинга,", 20, y);
+            y += 5;
+            doc.text("включая первоначальный взнос и выкупной платеж.", 20, y);
+            
+            // Сохранение
+            doc.save(`график_платежей_лизинг_${new Date().toISOString().split('T')[0]}.pdf`);
+        }
+
+        // Функция для печати
+        function printSchedule() {
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <html>
+                    <head>
+                        <title>График платежей по лизингу</title>
+                        <style>
+                            @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+                            body { font-family: 'Roboto', Arial, sans-serif; padding: 20px; }
+                            h1 { color: #1a3a5f; }
+                            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                            th { background-color: #f2f2f2; }
+                            .total-row { font-weight: bold; background-color: #e6f3ff; }
+                            .note { margin-top: 20px; padding: 10px; background: #f8fafc; border-radius: 5px; font-size: 0.9rem; color: #4a5568; }
+                            @media print {
+                                body { padding: 0; }
+                                .no-print { display: none; }
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <h1>График платежей по лизингу</h1>
+                        <div style="margin-bottom: 20px;">
+                            <strong>Дата генерации:</strong> ${new Date().toLocaleDateString('ru-RU')}<br>
+                            <strong>Ежемесячный платеж:</strong> ${formatCurrency(currentCalculation.monthlyPayment)}<br>
+                            <strong>Общая сумма договора:</strong> ${formatCurrency(currentCalculation.totalContractAmount)}
+                        </div>
+                        ${paymentScheduleContent.innerHTML}
+                        <div class="no-print" style="margin-top: 20px; font-style: italic;">
+                            Сгенерировано лизинговым калькулятором
+                        </div>
+                    </body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.focus();
+            printWindow.print();
+        }
+
+        // Настройка обработчиков событий
+        function setupEventListeners() {
+            // Обработчик для ввода стоимости авто
+            priceInput.addEventListener('input', function(e) {
+                this.value = formatMoneyInput(this.value);
+                calculateLeasing();
+            });
+            
+            priceInput.addEventListener('blur', function() {
+                if (!this.value || parseFormattedNumber(this.value) < 500000) {
+                    this.value = '500 000';
+                }
+                calculateLeasing();
+            });
+
+            // Обработчики для аванса
+            advanceSlider.addEventListener('input', function() {
+                const percent = parseFloat(this.value);
+                advanceValue.textContent = percent.toFixed(2) + '%';
+                updateAmountDisplays();
+                calculateLeasing();
+            });
+
+            // Обработчики для срока
+            termSlider.addEventListener('input', function() {
+                termValue.textContent = this.value;
+                calculateLeasing();
+            });
+
+            // Обработчики для выкупного платежа
+            redemptionSlider.addEventListener('input', function() {
+                let percent = parseFloat(this.value);
+                // Ограничиваем максимум 15%
+                if (percent > 15) {
+                    percent = 15;
+                    this.value = percent;
+                }
+                redemptionValue.textContent = percent.toFixed(2) + '%';
+                updateAmountDisplays();
+                calculateLeasing();
+            });
+
+            // Маска для телефона
+            const phoneInput = document.getElementById('phone');
+            phoneInput.addEventListener('input', function(e) {
+                let x = e.target.value.replace(/\D/g, '').match(/(\d{0,1})(\d{0,3})(\d{0,3})(\d{0,2})(\d{0,2})/);
+                e.target.value = !x[2] ? x[1] : '+7 (' + x[2] + ') ' + x[3] + (x[4] ? '-' + x[4] : '') + (x[5] ? '-' + x[5] : '');
+            });
+
+            // Фокус на поле телефона
+            phoneInput.addEventListener('focus', function() {
+                if (this.value === '+7 (') {
+                    this.setSelectionRange(4, 4);
+                }
+            });
+
+            // Обработчики для кнопок отправки и сохранения
+            sendToTelegramBtn.addEventListener('click', sendToTelegram);
+            callBtn.addEventListener('click', function() {
+                phoneModal.style.display = 'flex';
+            });
+            saveScheduleBtn.addEventListener('click', showPaymentSchedule);
+            
+            // Обработчики модального окна графика
+            closeModal.addEventListener('click', function() {
+                paymentModal.style.display = 'none';
+            });
+            
+            paymentModal.addEventListener('click', function(e) {
+                if (e.target === paymentModal) {
+                    paymentModal.style.display = 'none';
+                }
+            });
+            
+            // Используем альтернативную функцию для PDF
+            downloadPdfBtn.addEventListener('click', generatePDFAlternative);
+            printScheduleBtn.addEventListener('click', printSchedule);
+            
+            // Обработчики модального окна телефона
+            copyPhoneBtn.addEventListener('click', copyPhoneNumber);
+            closePhoneModal.addEventListener('click', function() {
+                phoneModal.style.display = 'none';
+            });
+            
+            phoneModal.addEventListener('click', function(e) {
+                if (e.target === phoneModal) {
+                    phoneModal.style.display = 'none';
+                }
+            });
+            
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    paymentModal.style.display = 'none';
+                    phoneModal.style.display = 'none';
+                }
+            });
+        }
+
+        // Функция для отправки в Telegram
+        function sendToTelegram() {
+            const name = document.getElementById('name').value;
+            const phone = document.getElementById('phone').value;
+            const inn = document.getElementById('inn').value;
+            
+            if (!name || !phone) {
+                alert('Пожалуйста, заполните обязательные поля: имя и телефон');
+                return;
+            }
+            
+            const message = `Здравствуйте! Я хочу рассчитать лизинг:
+
+💼 *Параметры расчета:*
+• Стоимость авто: ${formatCurrency(currentCalculation.carPrice)}
+• Первоначальный взнос: ${currentCalculation.advancePercent.toFixed(2)}% (${formatCurrency(currentCalculation.advanceAmount)})
+• Срок договора: ${currentCalculation.termMonths} мес.
+• Выкупной платеж: ${currentCalculation.redemptionPercent.toFixed(2)}% (${formatCurrency(currentCalculation.redemptionAmount)})
+
+📊 *Результаты расчета:*
+• Ежемесячный платеж: ${formatCurrency(currentCalculation.monthlyPayment)}
+• Налоговая экономия: ${formatCurrency(currentCalculation.totalTaxSavings)}
+• Общая сумма договора: ${formatCurrency(currentCalculation.totalContractAmount)}
+
+👤 *Мои данные:*
+• Имя: ${name}
+• Телефон: ${phone}
+${inn ? `• ИНН: ${inn}` : ''}
+
+Хочу получить подробное коммерческое предложение!`;
+
+            const encodedMessage = encodeURIComponent(message);
+            const telegramUrl = `https://t.me/YWeliQ?text=${encodedMessage}`;
+            
+            window.open(telegramUrl, '_blank');
+        }
+
+        // Инициализация при загрузке
+        document.addEventListener('DOMContentLoaded', function() {
+            // Инициализация ИНН
+            const innInput = document.getElementById('inn');
+            innInput.addEventListener('input', function() {
+                this.value = this.value.replace(/\D/g, '').slice(0, 12);
+            });
+            
+            // Настройка обработчиков событий
+            setupEventListeners();
+            
+            // Первоначальный расчет
+            calculateLeasing();
+            
+            // Установка курсора в поле телефона
+            const phoneInput = document.getElementById('phone');
+            phoneInput.value = '+7 (';
+            setTimeout(() => {
+                phoneInput.focus();
+                phoneInput.setSelectionRange(4, 4);
+            }, 100);
+        });
+    </script>
+</body>
+</html>
