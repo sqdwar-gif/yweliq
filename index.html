@@ -750,41 +750,30 @@
     <script>
         // ================= БАЗОВАЯ ЗАЩИТА =================
         
-        // 1. Защита от быстрых кликов (кликер-ботов)
-        let lastClickTime = 0;
-        function checkClickSpeed() {
-            const now = Date.now();
-            if (now - lastClickTime < 100) { // Меньше 100мс между кликами
-                console.warn('Слишком быстрые клики - возможен бот');
-                return false;
-            }
-            lastClickTime = now;
-            return true;
-        }
-        
-        // 2. Проверка honeypot поля
+        // 1. Проверка honeypot поля (основная защита от ботов)
         function checkHoneypot() {
             const honeypot = document.querySelector('.honeypot-field');
             if (honeypot && honeypot.value) {
-                console.warn('Bot detected via honeypot field');
+                console.warn('Обнаружен бот через honeypot поле');
                 return false;
             }
             return true;
         }
         
-        // 3. Блокировка F12 и контекстного меню (базовая защита)
+        // 2. Базовая защита - блокировка контекстного меню
         document.addEventListener('contextmenu', function(e) {
             e.preventDefault();
         });
         
-        // 4. Проверка времени заполнения формы
+        // 3. Проверка времени заполнения формы (упрощенная)
         function checkFormFillTime() {
             const startTime = document.getElementById('formStartTime').value;
             if (!startTime) return true;
             
             const fillTime = Date.now() - parseInt(startTime);
-            if (fillTime < 2000) { // Менее 2 секунд
-                console.warn('Форма заполнена слишком быстро - возможен бот');
+            // Минимальное время заполнения - 1 секунда (можно изменить)
+            if (fillTime < 1000) {
+                console.log('Форма заполнена очень быстро');
                 return false;
             }
             return true;
@@ -1150,12 +1139,6 @@
 
         // Функция для отображения графика платежей
         function showPaymentSchedule() {
-            // Проверяем скорость кликов
-            if (!checkClickSpeed()) {
-                alert('Пожалуйста, кликайте медленнее.');
-                return;
-            }
-            
             const schedule = currentCalculation.paymentSchedule;
             let html = `
                 <div style="margin-bottom: 18px; background: #f0f7ff; padding: 14px; border-radius: 10px; font-size: 0.9rem;">
@@ -1224,12 +1207,6 @@
 
         // Функция для сохранения и печати
         function saveAndPrint() {
-            // Проверяем скорость кликов
-            if (!checkClickSpeed()) {
-                alert('Пожалуйста, кликайте медленнее.');
-                return;
-            }
-            
             try {
                 // Сначала пытаемся создать PDF
                 if (typeof window.jspdf !== 'undefined') {
@@ -1410,9 +1387,7 @@
             });
 
             // Кнопки управления авансом
-            decreaseAdvanceBtn.addEventListener('click', function(e) {
-                if (!checkClickSpeed()) return;
-                
+            decreaseAdvanceBtn.addEventListener('click', function() {
                 let currentValue = parseFloat(advanceSlider.value);
                 if (currentValue > 5) {
                     currentValue = Math.max(5, currentValue - 1);
@@ -1421,9 +1396,7 @@
                 }
             });
 
-            increaseAdvanceBtn.addEventListener('click', function(e) {
-                if (!checkClickSpeed()) return;
-                
+            increaseAdvanceBtn.addEventListener('click', function() {
                 let currentValue = parseFloat(advanceSlider.value);
                 if (currentValue < 50) {
                     currentValue = Math.min(50, currentValue + 1);
@@ -1441,9 +1414,7 @@
             });
 
             // Кнопки управления сроком
-            decreaseTermBtn.addEventListener('click', function(e) {
-                if (!checkClickSpeed()) return;
-                
+            decreaseTermBtn.addEventListener('click', function() {
                 let currentValue = parseFloat(termSlider.value);
                 if (currentValue > 6) {
                     currentValue = Math.max(6, currentValue - 6);
@@ -1452,9 +1423,7 @@
                 }
             });
 
-            increaseTermBtn.addEventListener('click', function(e) {
-                if (!checkClickSpeed()) return;
-                
+            increaseTermBtn.addEventListener('click', function() {
                 let currentValue = parseFloat(termSlider.value);
                 if (currentValue < 60) {
                     currentValue = Math.min(60, currentValue + 6);
@@ -1477,9 +1446,7 @@
             });
 
             // Кнопки управления выкупным платежом
-            decreaseRedemptionBtn.addEventListener('click', function(e) {
-                if (!checkClickSpeed()) return;
-                
+            decreaseRedemptionBtn.addEventListener('click', function() {
                 let currentValue = parseFloat(redemptionSlider.value);
                 if (currentValue > 0) {
                     currentValue = Math.max(0, currentValue - 1);
@@ -1488,9 +1455,7 @@
                 }
             });
 
-            increaseRedemptionBtn.addEventListener('click', function(e) {
-                if (!checkClickSpeed()) return;
-                
+            increaseRedemptionBtn.addEventListener('click', function() {
                 let currentValue = parseFloat(redemptionSlider.value);
                 if (currentValue < 15) {
                     currentValue = Math.min(15, currentValue + 1);
@@ -1514,38 +1479,32 @@
             });
 
             // Обработчики для кнопок отправки и сохранения
-            sendToTelegramBtn.addEventListener('click', function(e) {
-                if (!checkClickSpeed()) {
-                    alert('Пожалуйста, кликайте медленнее.');
-                    return;
-                }
-                
-                if (!checkFormFillTime()) {
-                    alert('Пожалуйста, заполняйте форму более внимательно. Минимальное время заполнения - 2 секунды.');
-                    return;
-                }
-                
+            sendToTelegramBtn.addEventListener('click', function() {
+                // Проверяем honeypot перед отправкой
                 if (!checkHoneypot()) {
                     alert('Обнаружена подозрительная активность. Пожалуйста, обновите страницу.');
+                    return;
+                }
+                
+                // Проверяем время заполнения формы
+                if (!checkFormFillTime()) {
+                    alert('Пожалуйста, заполняйте форму более внимательно. Минимальное время заполнения - 1 секунда.');
                     return;
                 }
                 
                 sendToTelegram();
             });
             
-            callBtn.addEventListener('click', function(e) {
-                if (!checkClickSpeed()) return;
+            callBtn.addEventListener('click', function() {
                 phoneModal.style.display = 'flex';
             });
             
-            openScheduleBtn.addEventListener('click', function(e) {
-                if (!checkClickSpeed()) return;
+            openScheduleBtn.addEventListener('click', function() {
                 showPaymentSchedule();
             });
             
             // Обработчики модального окна графика
-            closeModal.addEventListener('click', function(e) {
-                if (!checkClickSpeed()) return;
+            closeModal.addEventListener('click', function() {
                 paymentModal.style.display = 'none';
             });
             
@@ -1556,19 +1515,16 @@
             });
             
             // Обработчик для кнопки "Сохранить и печать"
-            savePrintBtn.addEventListener('click', function(e) {
-                if (!checkClickSpeed()) return;
+            savePrintBtn.addEventListener('click', function() {
                 saveAndPrint();
             });
             
             // Обработчики модального окна телефона
-            copyPhoneBtn.addEventListener('click', function(e) {
-                if (!checkClickSpeed()) return;
+            copyPhoneBtn.addEventListener('click', function() {
                 copyPhoneNumber();
             });
             
-            closePhoneModal.addEventListener('click', function(e) {
-                if (!checkClickSpeed()) return;
+            closePhoneModal.addEventListener('click', function() {
                 phoneModal.style.display = 'none';
             });
             
