@@ -1030,29 +1030,29 @@
                 
                 <div class="result-box result-main">
                     <div class="result-label">Ежемесячный платеж</div>
-                    <div class="result-value" id="monthlyPayment">91 677 ₽</div>
+                    <div class="result-value" id="monthlyPayment">89 054 ₽</div>
                 </div>
                 
                 <div class="result-box">
                     <div class="result-label">Налоговая экономия <i class="fas fa-question-circle info-icon" title="Экономия рассчитана в сравнении с покупкой за собственные средства"></i></div>
-                    <div class="result-value" id="taxSaving">705 831 ₽</div>
+                    <div class="result-value" id="taxSaving">702 459 ₽</div>
                 </div>
                 
                 <div class="tax-savings-compact">
                     <div class="tax-savings-item">
                         <div class="tax-savings-label">НДС к возмещению (22%)</div>
-                        <div class="tax-savings-value" id="ndsSave">382 884 ₽</div>
+                        <div class="tax-savings-value" id="ndsSave">380 589 ₽</div>
                     </div>
                     <div class="tax-savings-item">
                         <div class="tax-savings-label">Экономия по налогу на прибыль (25%)</div>
-                        <div class="tax-savings-value" id="profitTaxSave">322 947 ₽</div>
+                        <div class="tax-savings-value" id="profitTaxSave">321 870 ₽</div>
                     </div>
                 </div>
                 
                 <div class="result-footer">
                     <div class="total-contract">
                         <div class="total-label">Общая стоимость договора</div>
-                        <div class="total-value" id="totalAmount">3 748 372 ₽</div>
+                        <div class="total-value" id="totalAmount">3 605 944 ₽</div>
                     </div>
                 </div>
                 
@@ -1173,7 +1173,7 @@
         let termMonths = 36;
         let redemptionPercent = 10.0;
         const baseRate = 17; // Базовая ставка 17%
-        const markupPercent = 13.5; // Общая наценка 13.5
+        const markupPercent = 4.5; // Наценка 4.5%
         
         // Элементы DOM
         const priceInput = document.getElementById('priceInput');
@@ -1300,7 +1300,7 @@
             calculateLeasing();
         }
         
-        // Расчет лизинга с базовой ставкой 17% и наценкой 13.5
+        // Расчет лизинга с базовой ставкой 17% и наценкой 4.5%
         function calculateLeasing() {
             const advancePercentValue = parseFloat(advanceSlider.value);
             const termValue = parseInt(termSlider.value);
@@ -1338,8 +1338,8 @@
                 return;
             }
             
-            // Процентная ставка 17% годовых + наценка 8% (было 11%)
-            const annualRate = baseRate + markupPercent; // 25% годовых (было 28%)
+            // Процентная ставка 17% годовых + наценка 4.5%
+            const annualRate = baseRate + markupPercent; // 21.5% годовых
             const monthlyRate = annualRate / 12 / 100;
             
             // Расчет аннуитетного платежа
@@ -1381,6 +1381,7 @@
             let totalVAT = 0;
             let totalProfitTax = 0;
             const today = new Date();
+            let paymentCounter = 0;
             
             // Если стоимость техники 0
             if (equipmentCost === 0) {
@@ -1392,6 +1393,7 @@
             
             // Добавление авансового платежа (ПЕРВЫЙ - с названием "Аванс")
             if (advancePayment > 0) {
+                paymentCounter++;
                 const advanceVAT = Math.round(advancePayment * 0.22 / 1.22);
                 const advanceProfitTax = Math.round((advancePayment - advanceVAT) * 0.25);
                 
@@ -1413,7 +1415,7 @@
             
             // Если сумма лизинга больше 0, добавляем ежемесячные платежи
             if (leasingAmount > 0) {
-                // Процентная ставка с наценкой (25% вместо 28%)
+                // Процентная ставка с наценкой (21.5%)
                 const annualRate = baseRate + markupPercent;
                 const monthlyRate = annualRate / 12 / 100;
                 
@@ -1424,15 +1426,17 @@
                 const monthlyVAT = Math.round(monthlyPaymentValue * 0.22 / 1.22);
                 const monthlyProfitTax = Math.round((monthlyPaymentValue - monthlyVAT) * 0.25);
                 
-                // Добавление ежемесячных платежей (номера 2, 3, 4...)
+                // Добавление ежемесячных платежей (номера 1, 2, 3...)
                 for (let i = 1; i <= termValue; i++) {
+                    paymentCounter++;
+                    
                     // Расчет даты платежа
                     const paymentDate = new Date(today);
                     paymentDate.setMonth(paymentDate.getMonth() + i);
                     
                     const row = document.createElement('tr');
                     row.innerHTML = `
-                        <td class="payment-number">${i + (advancePayment > 0 ? 1 : 0)}</td>
+                        <td class="payment-number">${paymentCounter}</td>
                         <td>${paymentDate.toLocaleDateString('ru-RU')}</td>
                         <td>${formatNumber(monthlyPaymentValue)} ₽</td>
                         <td>${formatNumber(monthlyVAT)} ₽</td>
@@ -1448,6 +1452,7 @@
             
             // Добавление выкупного платежа (ПОСЛЕДНИЙ - с названием "Выкупной платеж")
             if (redemptionPayment > 0) {
+                paymentCounter++;
                 const redemptionDate = new Date(today);
                 redemptionDate.setMonth(redemptionDate.getMonth() + termValue + 1);
                 
