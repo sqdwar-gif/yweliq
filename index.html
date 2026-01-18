@@ -1030,7 +1030,7 @@
                 
                 <div class="result-box result-main">
                     <div class="result-label">Ежемесячный платеж</div>
-                    <div class="result-value" id="monthlyPayment">84 227 ₽</div>
+                    <div class="result-value" id="monthlyPayment">93 942 ₽</div>
                 </div>
                 
                 <div class="result-box">
@@ -1052,7 +1052,7 @@
                 <div class="result-footer">
                     <div class="total-contract">
                         <div class="total-label">Общая стоимость договора</div>
-                        <div class="total-value" id="totalAmount">3 951 184 ₽</div>
+                        <div class="total-value" id="totalAmount">4 374 924 ₽</div>
                     </div>
                 </div>
                 
@@ -1171,7 +1171,7 @@
         let termMonths = 36;
         let redemptionPercent = 10.0;
         const baseRate = 17; // Базовая ставка 17%
-        const markupPercent = 5; // Наценка 5%
+        const markupPercent = 5 + 6; // Общая наценка 11% (5% + 6%)
         
         // Элементы DOM
         const priceInput = document.getElementById('priceInput');
@@ -1296,7 +1296,7 @@
             calculateLeasing();
         }
         
-        // Расчет лизинга с базовой ставкой 17% и наценкой 5%
+        // Расчет лизинга с базовой ставкой 17% и общей наценкой 11%
         function calculateLeasing() {
             const advancePercentValue = parseFloat(advanceSlider.value);
             const termValue = parseInt(termSlider.value);
@@ -1327,8 +1327,8 @@
                 return;
             }
             
-            // Процентная ставка 17% годовых + наценка 5%
-            const annualRate = baseRate + markupPercent; // 22% годовых
+            // Процентная ставка 17% годовых + общая наценка 11%
+            const annualRate = baseRate + markupPercent; // 28% годовых
             const monthlyRate = annualRate / 12 / 100;
             
             // Расчет аннуитетного платежа
