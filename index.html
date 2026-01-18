@@ -895,7 +895,7 @@
     
     /* Увеличение отступов между разделами параметров лизинга */
     .input-group.price-slider-container {
-        margin-bottom: 45px !important;
+        margin-bottom: 35px !important;
         padding-bottom: 20px;
         border-bottom: 1px solid #e2e8f0;
     }
@@ -977,7 +977,17 @@
 .price-slider-container {
     margin-top: 10px;
 } 
-        #antiCopy, #antiDevTools { display: none !important; }
+        #antiCopy, 
+#antiDevTools {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    position: absolute !important;
+    left: -9999px !important;
+    width: 0 !important;
+    height: 0 !important;
+    overflow: hidden !important;
+}
     </style>
 </head>
 <body class="no-copy">
