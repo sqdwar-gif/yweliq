@@ -1365,121 +1365,116 @@
         }
         
         // Генерация графика платежей с НДС и налогом на прибыль для каждого платежа
-        function generatePaymentSchedule() {
-            const advancePercentValue = parseFloat(advanceSlider.value);
-            const termValue = parseInt(termSlider.value);
-            const redemptionPercentValue = parseFloat(redemptionSlider.value);
+function generatePaymentSchedule() {
+    const advancePercentValue = parseFloat(advanceSlider.value);
+    const termValue = parseInt(termSlider.value);
+    const redemptionPercentValue = parseFloat(redemptionSlider.value);
+    
+    const advancePayment = equipmentCost * advancePercentValue / 100;
+    const redemptionPayment = equipmentCost * redemptionPercentValue / 100;
+    const leasingAmount = equipmentCost - advancePayment;
+    
+    // Очистка таблицы
+    paymentScheduleBody.innerHTML = '';
+    
+    let totalPayments = 0;
+    let totalVAT = 0;
+    let totalProfitTax = 0;
+    const today = new Date();
+    
+    // Если стоимость техники 0
+    if (equipmentCost === 0) {
+        scheduleTotalPayment.textContent = '0 ₽';
+        scheduleTotalVAT.textContent = '0 ₽';
+        scheduleTotalProfitTax.textContent = '0 ₽';
+        return;
+    }
+    
+    // Добавление авансового платежа (ПЕРВЫЙ - с названием "Аванс")
+    if (advancePayment > 0) {
+        const advanceVAT = Math.round(advancePayment * 0.22 / 1.22);
+        const advanceProfitTax = Math.round((advancePayment - advanceVAT) * 0.25);
+        
+        const advanceRow = document.createElement('tr');
+        advanceRow.className = 'advance-row';
+        advanceRow.innerHTML = `
+            <td class="payment-number">Аванс</td>
+            <td>${today.toLocaleDateString('ru-RU')}</td>
+            <td>${formatNumber(advancePayment)} ₽</td>
+            <td>${formatNumber(advanceVAT)} ₽</td>
+            <td>${formatNumber(advanceProfitTax)} ₽</td>
+        `;
+        paymentScheduleBody.appendChild(advanceRow);
+        
+        totalPayments += advancePayment;
+        totalVAT += advanceVAT;
+        totalProfitTax += advanceProfitTax;
+    }
+    
+    // Если сумма лизинга больше 0, добавляем ежемесячные платежи
+    if (leasingAmount > 0) {
+        // Процентная ставка с наценкой (21.5%)
+        const annualRate = baseRate + markupPercent;
+        const monthlyRate = annualRate / 12 / 100;
+        
+        // Аннуитетный платеж
+        const monthlyPaymentValue = leasingAmount * (monthlyRate * Math.pow(1 + monthlyRate, termValue)) / (Math.pow(1 + monthlyRate, termValue) - 1);
+        
+        // Расчет НДС и налога на прибыль для каждого ежемесячного платежа
+        const monthlyVAT = Math.round(monthlyPaymentValue * 0.22 / 1.22);
+        const monthlyProfitTax = Math.round((monthlyPaymentValue - monthlyVAT) * 0.25);
+        
+        // Добавление ежемесячных платежей (номера 2, 3, 4...)
+        for (let i = 1; i <= termValue; i++) {
+            // Расчет даты платежа
+            const paymentDate = new Date(today);
+            paymentDate.setMonth(paymentDate.getMonth() + i);
             
-            const advancePayment = equipmentCost * advancePercentValue / 100;
-            const redemptionPayment = equipmentCost * redemptionPercentValue / 100;
-            const leasingAmount = equipmentCost - advancePayment;
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td class="payment-number">${i + 1}</td>
+                <td>${paymentDate.toLocaleDateString('ru-RU')}</td>
+                <td>${formatNumber(monthlyPaymentValue)} ₽</td>
+                <td>${formatNumber(monthlyVAT)} ₽</td>
+                <td>${formatNumber(monthlyProfitTax)} ₽</td>
+            `;
+            paymentScheduleBody.appendChild(row);
             
-            // Очистка таблицы
-            paymentScheduleBody.innerHTML = '';
-            
-            let totalPayments = 0;
-            let totalVAT = 0;
-            let totalProfitTax = 0;
-            const today = new Date();
-            let paymentCounter = 0;
-            
-            // Если стоимость техники 0
-            if (equipmentCost === 0) {
-                scheduleTotalPayment.textContent = '0 ₽';
-                scheduleTotalVAT.textContent = '0 ₽';
-                scheduleTotalProfitTax.textContent = '0 ₽';
-                return;
-            }
-            
-            // Добавление авансового платежа (ПЕРВЫЙ - с названием "Аванс")
-            if (advancePayment > 0) {
-                paymentCounter++;
-                const advanceVAT = Math.round(advancePayment * 0.22 / 1.22);
-                const advanceProfitTax = Math.round((advancePayment - advanceVAT) * 0.25);
-                
-                const advanceRow = document.createElement('tr');
-                advanceRow.className = 'advance-row';
-                advanceRow.innerHTML = `
-                    <td class="payment-number">Аванс</td>
-                    <td>${today.toLocaleDateString('ru-RU')}</td>
-                    <td>${formatNumber(advancePayment)} ₽</td>
-                    <td>${formatNumber(advanceVAT)} ₽</td>
-                    <td>${formatNumber(advanceProfitTax)} ₽</td>
-                `;
-                paymentScheduleBody.appendChild(advanceRow);
-                
-                totalPayments += advancePayment;
-                totalVAT += advanceVAT;
-                totalProfitTax += advanceProfitTax;
-            }
-            
-            // Если сумма лизинга больше 0, добавляем ежемесячные платежи
-            if (leasingAmount > 0) {
-                // Процентная ставка с наценкой (21.5%)
-                const annualRate = baseRate + markupPercent;
-                const monthlyRate = annualRate / 12 / 100;
-                
-                // Аннуитетный платеж
-                const monthlyPaymentValue = leasingAmount * (monthlyRate * Math.pow(1 + monthlyRate, termValue)) / (Math.pow(1 + monthlyRate, termValue) - 1);
-                
-                // Расчет НДС и налога на прибыль для каждого ежемесячного платежа
-                const monthlyVAT = Math.round(monthlyPaymentValue * 0.22 / 1.22);
-                const monthlyProfitTax = Math.round((monthlyPaymentValue - monthlyVAT) * 0.25);
-                
-                // Добавление ежемесячных платежей (номера 1, 2, 3...)
-                for (let i = 1; i <= termValue; i++) {
-                    paymentCounter++;
-                    
-                    // Расчет даты платежа
-                    const paymentDate = new Date(today);
-                    paymentDate.setMonth(paymentDate.getMonth() + i);
-                    
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td class="payment-number">${paymentCounter}</td>
-                        <td>${paymentDate.toLocaleDateString('ru-RU')}</td>
-                        <td>${formatNumber(monthlyPaymentValue)} ₽</td>
-                        <td>${formatNumber(monthlyVAT)} ₽</td>
-                        <td>${formatNumber(monthlyProfitTax)} ₽</td>
-                    `;
-                    paymentScheduleBody.appendChild(row);
-                    
-                    totalPayments += monthlyPaymentValue;
-                    totalVAT += monthlyVAT;
-                    totalProfitTax += monthlyProfitTax;
-                }
-            }
-            
-            // Добавление выкупного платежа (ПОСЛЕДНИЙ - с названием "Выкупной платеж")
-            if (redemptionPayment > 0) {
-                paymentCounter++;
-                const redemptionDate = new Date(today);
-                redemptionDate.setMonth(redemptionDate.getMonth() + termValue + 1);
-                
-                const redemptionVAT = Math.round(redemptionPayment * 0.22 / 1.22);
-                const redemptionProfitTax = Math.round((redemptionPayment - redemptionVAT) * 0.25);
-                
-                const redemptionRow = document.createElement('tr');
-                redemptionRow.className = 'redemption-row';
-                redemptionRow.innerHTML = `
-                    <td class="payment-number">Выкупной<br>платеж</td>
-                    <td>${redemptionDate.toLocaleDateString('ru-RU')}</td>
-                    <td>${formatNumber(redemptionPayment)} ₽</td>
-                    <td>${formatNumber(redemptionVAT)} ₽</td>
-                    <td>${formatNumber(redemptionProfitTax)} ₽</td>
-                `;
-                paymentScheduleBody.appendChild(redemptionRow);
-                
-                totalPayments += redemptionPayment;
-                totalVAT += redemptionVAT;
-                totalProfitTax += redemptionProfitTax;
-            }
-            
-            // Обновление итоговых сумм
-            scheduleTotalPayment.textContent = `${formatNumber(totalPayments)} ₽`;
-            scheduleTotalVAT.textContent = `${formatNumber(totalVAT)} ₽`;
-            scheduleTotalProfitTax.textContent = `${formatNumber(totalProfitTax)} ₽`;
+            totalPayments += monthlyPaymentValue;
+            totalVAT += monthlyVAT;
+            totalProfitTax += monthlyProfitTax;
         }
+    }
+    
+    // Добавление выкупного платежа (ПОСЛЕДНИЙ - с названием "Выкупной платеж")
+    if (redemptionPayment > 0) {
+        const redemptionDate = new Date(today);
+        redemptionDate.setMonth(redemptionDate.getMonth() + termValue + 1);
+        
+        const redemptionVAT = Math.round(redemptionPayment * 0.22 / 1.22);
+        const redemptionProfitTax = Math.round((redemptionPayment - redemptionVAT) * 0.25);
+        
+        const redemptionRow = document.createElement('tr');
+        redemptionRow.className = 'redemption-row';
+        redemptionRow.innerHTML = `
+            <td class="payment-number">Выкупной<br>платеж</td>
+            <td>${redemptionDate.toLocaleDateString('ru-RU')}</td>
+            <td>${formatNumber(redemptionPayment)} ₽</td>
+            <td>${formatNumber(redemptionVAT)} ₽</td>
+            <td>${formatNumber(redemptionProfitTax)} ₽</td>
+        `;
+        paymentScheduleBody.appendChild(redemptionRow);
+        
+        totalPayments += redemptionPayment;
+        totalVAT += redemptionVAT;
+        totalProfitTax += redemptionProfitTax;
+    }
+    
+    // Обновление итоговых сумм
+    scheduleTotalPayment.textContent = `${formatNumber(totalPayments)} ₽`;
+    scheduleTotalVAT.textContent = `${formatNumber(totalVAT)} ₽`;
+    scheduleTotalProfitTax.textContent = `${formatNumber(totalProfitTax)} ₽`;
+}
         
         // Функция печати графика платежей (обновленная)
         function printSchedule() {
