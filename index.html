@@ -974,9 +974,9 @@
         }
         
         /* Скрытие диапазонов для стоимости техники */
-        .price-slider-container {
-            margin-top: 10px;
-        }
+.price-slider-container {
+    margin-top: 10px;
+} 
     </style>
 </head>
 <body class="no-copy">
@@ -1012,7 +1012,7 @@
             <section class="input-section">
                 <h2 class="section-title"><i class="fas fa-sliders-h"></i> Параметры лизинга</h2>
                 
-                <!-- СТОИМОСТЬ ТЕХНИКИ - от 0 до 100 млн -->
+                <!-- СТОИМОСТЬ ТЕХНИКИ - от 0 до 50 млн -->
                 <div class="input-group price-slider-container">
                     <div class="input-header">
                         <label for="priceInput">Стоимость техники</label>
@@ -1021,8 +1021,8 @@
                         <input type="text" id="priceInput" class="money-input" value="1 500 000" autocomplete="off">
                         <span class="input-suffix">₽</span>
                     </div>
-                    <input type="range" id="priceSlider" class="range-slider" min="0" max="100000000" step="10000" value="1500000" style="margin-top: 10px;">
-                    <!-- Диапазон скрыт (0-100 млн не отображается) -->
+                    <input type="range" id="priceSlider" class="range-slider" min="0" max="50000000" step="10000" value="1500000" style="margin-top: 10px;">
+                    <!-- Диапазон скрыт (0-50 млн не отображается) -->
                 </div>
                 
                 <!-- Аванс -->
@@ -1380,13 +1380,13 @@
             return parseFloat(str.replace(/\s/g, '')) || 0;
         }
         
-        // Обновление стоимости техники (от 0 до 100 млн)
+        // Обновление стоимости техники (от 0 до 50 млн)
         function updateEquipmentCost() {
             let value = parseFormattedNumber(priceInput.value);
             
             // Проверяем допустимый диапазон
             if (value < 0) value = 0;
-            if (value > 100000000) value = 100000000;
+            if (value > 50000000) value = 50000000;
             
             // Если поле пустое или 0, устанавливаем минимальное значение
             if (!value || value < 0) {
