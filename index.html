@@ -1173,7 +1173,7 @@
         let termMonths = 36;
         let redemptionPercent = 10.0;
         const baseRate = 17; // Базовая ставка 17%
-        const markupPercent = 11.5; // Наценка 11.5%
+        const markupPercent = 14; // Наценка 14%
         
         // Элементы DOM
         const priceInput = document.getElementById('priceInput');
@@ -1300,7 +1300,7 @@
             calculateLeasing();
         }
         
-        // Расчет лизинга с базовой ставкой 17% и наценкой 11.5%
+        // Расчет лизинга с базовой ставкой 17% и наценкой 14%
         function calculateLeasing() {
             const advancePercentValue = parseFloat(advanceSlider.value);
             const termValue = parseInt(termSlider.value);
