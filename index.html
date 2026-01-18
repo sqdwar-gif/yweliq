@@ -871,23 +871,90 @@
             background: #cbd5e0;
         }
         .copy-success {
-            color: #38a169;
-            font-size: 0.8rem;
-            margin-top: 8px;
-            display: none;
-            cursor: default;
-        }
-        
-        .vat-amount, .profit-tax-amount {
-            font-weight: 600;
-            color: #2d3748;
-            cursor: default;
-        }
-        
-        /* Стиль для подсказок формул (скрыт по умолчанию) */
-        .formula-hint {
-            display: none;
-        }
+        color: #38a169;
+        font-size: 0.8rem;
+        margin-top: 8px;
+        display: none;
+        cursor: default;
+    }
+    /* Центрировать окно ввода стоимости техники */
+    .price-slider-container .input-with-controls {
+        justify-content: center;
+    }
+    
+    /* Все стили для поля ввода В ОДНОМ МЕСТЕ */
+    #priceInput {
+        text-align: center !important;
+        height: 25px !important; /* Нормальная высота, а не 20px */
+        padding: 10px 12px !important;
+        line-height: 1.4 !important;
+        width: 200px !important;
+        margin: 0 auto;
+        display: block;
+    }
+    
+    /* Увеличение отступов между разделами параметров лизинга */
+    .input-group.price-slider-container {
+        margin-bottom: 55px !important;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #e2e8f0;
+    }
+    
+    /* Для остальных разделов тоже увеличим отступы */
+    .input-group {
+        margin-bottom: 25px !important;
+        padding-bottom: 18px;
+        border-bottom: 1px solid #f1f5f9;
+    }
+    
+    /* Уберем нижнюю линию у последнего раздела */
+    .input-section .input-group:last-child {
+        border-bottom: none;
+        padding-bottom: 10px;
+    }
+    
+    /* Увеличим отступы внутри контейнера стоимости техники */
+    .price-slider-container .input-with-controls {
+        margin: 15px 0;
+    }
+    
+    /* Увеличим отступ слайдера стоимости */
+    #priceSlider {
+        margin: 15px 0 5px 0 !important;
+    }
+    
+    /* Увеличим отступы для процентных контролов */
+    .percent-controls {
+        margin-top: 12px;
+    }
+    
+    /* Увеличим вертикальный отступ в секции ввода */
+    .input-section {
+        padding: 25px !important;
+    }
+    
+    /* Скрыть только проценты */
+    #advanceValue,
+    #redemptionValue,
+    #pricePercent {
+        display: none !important;
+    }
+    
+    /* Оставить суммы в рублях видимыми */
+    #advanceRub,
+    #redemptionRub {
+        display: block !important;
+    }
+    
+    .vat-amount, .profit-tax-amount {
+        font-weight: 600;
+        color: #2d3748;
+        cursor: default;
+    }
+    
+    /* Стиль для подсказок формул (скрыт по умолчанию) */
+    .formula-hint {
+        display: none;
         
         /* Защита от копирования */
         .protection-overlay {
