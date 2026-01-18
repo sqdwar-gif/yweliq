@@ -191,7 +191,7 @@
             cursor: default;
         }
         
-        /* УБИРАЕМ дублирующую сумму в правом углу для стоимости техники */
+        /* Стоимость техники - без диапазона */
         .price-input-container {
             margin-top: 8px;
         }
@@ -217,7 +217,7 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.2); 
         }
         
-        /* УБИРАЕМ отображение диапазона 0-100 млн для стоимости техники */
+        /* Убираем отображение диапазона для стоимости техники */
         .range-limits { 
             display: flex; 
             justify-content: space-between; 
@@ -225,6 +225,11 @@
             font-size: 0.75rem; 
             color: #718096;
             cursor: default;
+        }
+        
+        /* Скрываем диапазон для стоимости техники */
+        .price-slider-container .range-limits {
+            display: none;
         }
         
         .input-with-controls { 
@@ -771,9 +776,7 @@
         .modal-actions {
             display: flex;
             justify-content: flex-end;
-            gap: 8px;
             margin-bottom: 16px;
-            flex-wrap: wrap;
         }
         .modal-action-btn {
             padding: 8px 16px;
@@ -787,11 +790,11 @@
             gap: 6px;
             font-size: 0.85rem;
         }
-        .modal-print-save-btn {
+        .modal-print-btn {
             background: #2c5282;
             color: white;
         }
-        .modal-print-save-btn:hover {
+        .modal-print-btn:hover {
             background: #1a3a5f;
         }
         
@@ -903,29 +906,9 @@
             display: none;
         }
         
-        /* Стили для кнопок в модальном окне */
-        .print-save-buttons {
-            display: flex;
-            gap: 10px;
-            justify-content: flex-end;
-        }
-        
-        .print-btn {
-            background: #e67e22;
-            color: white;
-        }
-        
-        .print-btn:hover {
-            background: #d35400;
-        }
-        
-        .save-btn {
-            background: #38a169;
-            color: white;
-        }
-        
-        .save-btn:hover {
-            background: #2f855a;
+        /* Скрытие диапазонов для стоимости техники */
+        .price-slider-container {
+            margin-top: 10px;
         }
     </style>
 </head>
@@ -962,16 +945,17 @@
             <section class="input-section">
                 <h2 class="section-title"><i class="fas fa-sliders-h"></i> Параметры лизинга</h2>
                 
-                <!-- СТОИМОСТЬ ТЕХНИКИ - упрощенный вид -->
-                <div class="input-group">
+                <!-- СТОИМОСТЬ ТЕХНИКИ - от 0 до 100 млн -->
+                <div class="input-group price-slider-container">
                     <div class="input-header">
                         <label for="priceInput">Стоимость техники</label>
                     </div>
                     <div class="input-with-controls">
-                        <input type="text" id="priceInput" class="money-input" value="1 500 000" data-max="100 000 000" autocomplete="off">
+                        <input type="text" id="priceInput" class="money-input" value="1 500 000" autocomplete="off">
                         <span class="input-suffix">₽</span>
                     </div>
-                    <input type="range" id="priceSlider" class="range-slider" min="0" max="100000000" step="100000" value="1500000" style="margin-top: 10px;">
+                    <input type="range" id="priceSlider" class="range-slider" min="0" max="100000000" step="10000" value="1500000" style="margin-top: 10px;">
+                    <!-- Диапазон скрыт (0-100 млн не отображается) -->
                 </div>
                 
                 <!-- ПЕРВОНАЧАЛЬНЫЙ ВЗНОС -->
@@ -1134,12 +1118,9 @@
                 <button class="close-modal" id="closeScheduleModal" onclick="closeScheduleModal()">×</button>
             </div>
             
-            <div class="modal-actions print-save-buttons">
-                <button class="modal-action-btn print-btn" id="printScheduleBtn" onclick="printSchedule()">
+            <div class="modal-actions">
+                <button class="modal-action-btn modal-print-btn" id="printScheduleBtn" onclick="printSchedule()">
                     <i class="fas fa-print"></i> Распечатать
-                </button>
-                <button class="modal-action-btn save-btn" id="saveScheduleBtn" onclick="saveScheduleToPDF()">
-                    <i class="fas fa-download"></i> Сохранить
                 </button>
             </div>
             
@@ -1298,6 +1279,7 @@
         
         // Форматирование чисел
         function formatNumber(num) {
+            if (num === 0) return '0';
             return Math.round(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
         }
         
@@ -1305,15 +1287,29 @@
             return parseFloat(str.replace(/\s/g, '')) || 0;
         }
         
-        // Обновление стоимости техники
+        // Обновление стоимости техники (от 0 до 100 млн)
         function updateEquipmentCost() {
-            const value = parseFormattedNumber(priceInput.value);
-            const sliderValue = Math.min(Math.max(value, 100000), 100000000);
+            let value = parseFormattedNumber(priceInput.value);
             
-            priceSlider.value = sliderValue;
-            priceInput.value = formatNumber(sliderValue);
+            // Проверяем допустимый диапазон
+            if (value < 0) value = 0;
+            if (value > 100000000) value = 100000000;
             
-            equipmentCost = sliderValue;
+            // Если поле пустое или 0, устанавливаем минимальное значение
+            if (!value || value < 0) {
+                value = 0;
+                priceInput.value = '0';
+            }
+            
+            // Обновляем слайдер и поле ввода
+            priceSlider.value = value;
+            if (value > 0) {
+                priceInput.value = formatNumber(value);
+            } else {
+                priceInput.value = '0';
+            }
+            
+            equipmentCost = value;
             updateAdvanceValue();
             updateRedemptionValue();
             calculateLeasing();
@@ -1382,10 +1378,30 @@
             const termValue = parseInt(termSlider.value);
             const redemptionPercentValue = parseFloat(redemptionSlider.value);
             
+            // Проверяем, что стоимость техники не равна 0
+            if (equipmentCost === 0) {
+                monthlyPayment.textContent = '0 ₽';
+                taxSaving.textContent = '0 ₽';
+                ndsSave.textContent = '0 ₽';
+                profitTaxSave.textContent = '0 ₽';
+                totalAmount.textContent = '0 ₽';
+                return;
+            }
+            
             // Расчеты
             const advancePayment = equipmentCost * advancePercentValue / 100;
             const redemptionPayment = equipmentCost * redemptionPercentValue / 100;
             const leasingAmount = equipmentCost - advancePayment;
+            
+            // Если сумма лизинга равна 0 (100% аванс)
+            if (leasingAmount <= 0) {
+                monthlyPayment.textContent = '0 ₽';
+                taxSaving.textContent = `${formatNumber(advancePayment * 0.22 / 1.22)} ₽`;
+                ndsSave.textContent = `${formatNumber(advancePayment * 0.22 / 1.22)} ₽`;
+                profitTaxSave.textContent = '0 ₽';
+                totalAmount.textContent = `${formatNumber(advancePayment + redemptionPayment)} ₽`;
+                return;
+            }
             
             // Процентная ставка 10% годовых + наценка 4%
             const annualRate = 10 + markupPercent; // 14% годовых
@@ -1423,19 +1439,17 @@
             const redemptionPayment = equipmentCost * redemptionPercentValue / 100;
             const leasingAmount = equipmentCost - advancePayment;
             
-            // Процентная ставка с наценкой
-            const annualRate = 10 + markupPercent;
-            const monthlyRate = annualRate / 12 / 100;
+            // Очистка таблицы
+            paymentScheduleBody.innerHTML = '';
             
-            // Аннуитетный платеж
-            const monthlyPaymentValue = leasingAmount * (monthlyRate * Math.pow(1 + monthlyRate, termValue)) / (Math.pow(1 + monthlyRate, termValue) - 1);
-            
-            let remainingDebt = leasingAmount;
             let totalPayments = 0;
             const today = new Date();
             
-            // Очистка таблицы
-            paymentScheduleBody.innerHTML = '';
+            // Если стоимость техники 0
+            if (equipmentCost === 0) {
+                scheduleTotalPayment.textContent = '0 ₽';
+                return;
+            }
             
             // Добавление авансового платежа (ПЕРВЫЙ - с названием "Аванс")
             const advanceRow = document.createElement('tr');
@@ -1444,32 +1458,44 @@
                 <td class="payment-number">Аванс</td>
                 <td>${today.toLocaleDateString('ru-RU')}</td>
                 <td>${formatNumber(advancePayment)} ₽</td>
-                <td>${formatNumber(remainingDebt)} ₽</td>
+                <td>${formatNumber(leasingAmount)} ₽</td>
             `;
             paymentScheduleBody.appendChild(advanceRow);
             totalPayments += advancePayment;
             
-            // Добавление ежемесячных платежей (номера 2, 3, 4...)
-            for (let i = 1; i <= termValue; i++) {
-                const interest = remainingDebt * monthlyRate;
-                const principal = monthlyPaymentValue - interest;
-                remainingDebt -= principal;
+            // Если сумма лизинга больше 0, добавляем ежемесячные платежи
+            if (leasingAmount > 0) {
+                // Процентная ставка с наценкой
+                const annualRate = 10 + markupPercent;
+                const monthlyRate = annualRate / 12 / 100;
                 
-                if (remainingDebt < 0) remainingDebt = 0;
+                // Аннуитетный платеж
+                const monthlyPaymentValue = leasingAmount * (monthlyRate * Math.pow(1 + monthlyRate, termValue)) / (Math.pow(1 + monthlyRate, termValue) - 1);
                 
-                // Расчет даты платежа
-                const paymentDate = new Date(today);
-                paymentDate.setMonth(paymentDate.getMonth() + i);
+                let remainingDebt = leasingAmount;
                 
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td class="payment-number">${i + 1}</td>
-                    <td>${paymentDate.toLocaleDateString('ru-RU')}</td>
-                    <td>${formatNumber(monthlyPaymentValue)} ₽</td>
-                    <td>${formatNumber(remainingDebt)} ₽</td>
-                `;
-                paymentScheduleBody.appendChild(row);
-                totalPayments += monthlyPaymentValue;
+                // Добавление ежемесячных платежей (номера 2, 3, 4...)
+                for (let i = 1; i <= termValue; i++) {
+                    const interest = remainingDebt * monthlyRate;
+                    const principal = monthlyPaymentValue - interest;
+                    remainingDebt -= principal;
+                    
+                    if (remainingDebt < 0) remainingDebt = 0;
+                    
+                    // Расчет даты платежа
+                    const paymentDate = new Date(today);
+                    paymentDate.setMonth(paymentDate.getMonth() + i);
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="payment-number">${i + 1}</td>
+                        <td>${paymentDate.toLocaleDateString('ru-RU')}</td>
+                        <td>${formatNumber(monthlyPaymentValue)} ₽</td>
+                        <td>${formatNumber(remainingDebt)} ₽</td>
+                    `;
+                    paymentScheduleBody.appendChild(row);
+                    totalPayments += monthlyPaymentValue;
+                }
             }
             
             // Добавление выкупного платежа (ПОСЛЕДНИЙ - с названием "Выкупной платеж")
@@ -1593,97 +1619,6 @@
                 // Автоматически открываем окно печати
                 printWindow.print();
             }, 500);
-        }
-        
-        // Сохранение графика в PDF
-        function saveScheduleToPDF() {
-            try {
-                const { jsPDF } = window.jspdf;
-                
-                // Создаем новый документ
-                const doc = new jsPDF('p', 'mm', 'a4');
-                
-                // Заголовок
-                doc.setFontSize(18);
-                doc.text('График платежей по лизингу', 20, 20);
-                
-                // Дата формирования
-                doc.setFontSize(10);
-                doc.text(`Дата формирования: ${new Date().toLocaleDateString('ru-RU')}`, 20, 30);
-                
-                // Параметры расчета
-                doc.setFontSize(11);
-                doc.text(`Стоимость техники: ${priceInput.value} ₽`, 20, 40);
-                doc.text(`Первоначальный взнос: ${advanceValue.textContent} (${advanceRub.textContent})`, 20, 48);
-                doc.text(`Срок договора: ${termValue.textContent} месяцев`, 20, 56);
-                doc.text(`Выкупной платеж: ${redemptionValue.textContent} (${redemptionRub.textContent})`, 20, 64);
-                doc.text(`Ежемесячный платеж: ${monthlyPayment.textContent}`, 20, 72);
-                doc.text(`Общая стоимость договора: ${totalAmount.textContent}`, 20, 80);
-                
-                // Подготавливаем данные для таблицы
-                const table = document.getElementById('paymentScheduleTable');
-                const tableData = [];
-                
-                // Заголовки таблицы
-                tableData.push(['№', 'Дата платежа', 'Сумма платежа', 'Остаток долга']);
-                
-                // Данные таблицы
-                const rows = table.querySelectorAll('tbody tr');
-                rows.forEach(row => {
-                    const cells = row.querySelectorAll('td');
-                    const rowData = [];
-                    cells.forEach(cell => {
-                        rowData.push(cell.textContent.trim());
-                    });
-                    tableData.push(rowData);
-                });
-                
-                // Итоговая строка
-                const footerRow = table.querySelector('tfoot tr');
-                if (footerRow) {
-                    const footerCells = footerRow.querySelectorAll('td');
-                    const footerData = [];
-                    footerCells.forEach(cell => {
-                        footerData.push(cell.textContent.trim());
-                    });
-                    tableData.push(footerData);
-                }
-                
-                // Генерируем таблицу
-                doc.autoTable({
-                    head: [tableData[0]],
-                    body: tableData.slice(1),
-                    startY: 90,
-                    theme: 'grid',
-                    headStyles: { 
-                        fillColor: [44, 82, 130],
-                        textColor: [255, 255, 255],
-                        fontStyle: 'bold'
-                    },
-                    styles: { 
-                        fontSize: 9,
-                        cellPadding: 3
-                    },
-                    columnStyles: {
-                        0: { cellWidth: 20 },
-                        1: { cellWidth: 40 },
-                        2: { cellWidth: 45 },
-                        3: { cellWidth: 45 }
-                    }
-                });
-                
-                // Примечание
-                const finalY = doc.lastAutoTable.finalY || 90;
-                doc.setFontSize(9);
-                doc.text('*Все расчеты являются предварительными. Точные условия будут рассчитаны после консультации с менеджером.', 20, finalY + 10);
-                
-                // Сохраняем файл
-                doc.save(`График_платежей_лизинг_${new Date().toISOString().slice(0,10)}.pdf`);
-                
-            } catch (error) {
-                console.error('Ошибка при создании PDF:', error);
-                alert('Не удалось создать PDF файл. Пожалуйста, попробуйте снова.');
-            }
         }
         
         // Управление модальными окнами
@@ -1820,8 +1755,12 @@
         function init() {
             // Настройка обработчиков
             priceSlider.addEventListener('input', function() {
-                priceInput.value = formatNumber(this.value);
-                updateEquipmentCost();
+                const value = parseInt(this.value);
+                priceInput.value = formatNumber(value);
+                equipmentCost = value;
+                updateAdvanceValue();
+                updateRedemptionValue();
+                calculateLeasing();
             });
             
             priceInput.addEventListener('input', updateEquipmentCost);
