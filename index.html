@@ -1030,29 +1030,29 @@
                 
                 <div class="result-box result-main">
                     <div class="result-label">Ежемесячный платеж</div>
-                    <div class="result-value" id="monthlyPayment">93 942 ₽</div>
+                    <div class="result-value" id="monthlyPayment">91 677 ₽</div>
                 </div>
                 
                 <div class="result-box">
                     <div class="result-label">Налоговая экономия <i class="fas fa-question-circle info-icon" title="Экономия рассчитана в сравнении с покупкой за собственные средства"></i></div>
-                    <div class="result-value" id="taxSaving">1 335 906 ₽</div>
+                    <div class="result-value" id="taxSaving">705 831 ₽</div>
                 </div>
                 
                 <div class="tax-savings-compact">
                     <div class="tax-savings-item">
                         <div class="tax-savings-label">НДС к возмещению (22%)</div>
-                        <div class="tax-savings-value" id="ndsSave">625 135 ₽</div>
+                        <div class="tax-savings-value" id="ndsSave">382 884 ₽</div>
                     </div>
                     <div class="tax-savings-item">
                         <div class="tax-savings-label">Экономия по налогу на прибыль (25%)</div>
-                        <div class="tax-savings-value" id="profitTaxSave">710 771 ₽</div>
+                        <div class="tax-savings-value" id="profitTaxSave">322 947 ₽</div>
                     </div>
                 </div>
                 
                 <div class="result-footer">
                     <div class="total-contract">
                         <div class="total-label">Общая стоимость договора</div>
-                        <div class="total-value" id="totalAmount">4 374 924 ₽</div>
+                        <div class="total-value" id="totalAmount">3 748 372 ₽</div>
                     </div>
                 </div>
                 
@@ -1114,7 +1114,7 @@
     <div class="modal-overlay" id="scheduleModal">
         <div class="modal-content">
             <div class="modal-header">
-                <div class="modal-title">График платежей по лизингу</div>
+                <div class="modal-title">График платежей по лизингу с налоговой экономией</div>
                 <button class="close-modal" id="closeScheduleModal" onclick="closeScheduleModal()">×</button>
             </div>
             
@@ -1130,7 +1130,8 @@
                         <th class="payment-number">№</th>
                         <th>Дата платежа</th>
                         <th>Сумма платежа</th>
-                        <th>Остаток долга</th>
+                        <th>НДС (22%)</th>
+                        <th>Налог на прибыль (25%)</th>
                     </tr>
                 </thead>
                 <tbody id="paymentScheduleBody">
@@ -1140,7 +1141,8 @@
                     <tr class="total-row">
                         <td colspan="2">Итого:</td>
                         <td id="scheduleTotalPayment">0 ₽</td>
-                        <td>-</td>
+                        <td id="scheduleTotalVAT">0 ₽</td>
+                        <td id="scheduleTotalProfitTax">0 ₽</td>
                     </tr>
                 </tfoot>
             </table>
@@ -1171,7 +1173,7 @@
         let termMonths = 36;
         let redemptionPercent = 10.0;
         const baseRate = 17; // Базовая ставка 17%
-        const markupPercent = 5 + 6; // Общая наценка 11% (5% + 6%)
+        const markupPercent = 5 + 3; // Общая наценка 8% (5% + 3%) - УМЕНЬШЕНА НА 3%
         
         // Элементы DOM
         const priceInput = document.getElementById('priceInput');
@@ -1199,6 +1201,8 @@
         const scheduleModal = document.getElementById('scheduleModal');
         const paymentScheduleBody = document.getElementById('paymentScheduleBody');
         const scheduleTotalPayment = document.getElementById('scheduleTotalPayment');
+        const scheduleTotalVAT = document.getElementById('scheduleTotalVAT');
+        const scheduleTotalProfitTax = document.getElementById('scheduleTotalProfitTax');
         const phoneModal = document.getElementById('phoneModal');
         
         // Форматирование чисел
@@ -1296,7 +1300,7 @@
             calculateLeasing();
         }
         
-        // Расчет лизинга с базовой ставкой 17% и общей наценкой 11%
+        // Расчет лизинга с базовой ставкой 17% и наценкой 8% (вместо 11%)
         function calculateLeasing() {
             const advancePercentValue = parseFloat(advanceSlider.value);
             const termValue = parseInt(termSlider.value);
@@ -1320,15 +1324,22 @@
             // Если сумма лизинга равна 0 (100% аванс)
             if (leasingAmount <= 0) {
                 monthlyPayment.textContent = '0 ₽';
-                taxSaving.textContent = `${formatNumber(advancePayment * 0.22 / 1.22)} ₽`;
-                ndsSave.textContent = `${formatNumber(advancePayment * 0.22 / 1.22)} ₽`;
-                profitTaxSave.textContent = '0 ₽';
-                totalAmount.textContent = `${formatNumber(advancePayment + redemptionPayment)} ₽`;
+                const totalContractValue = advancePayment + redemptionPayment;
+                
+                // НОВАЯ ФОРМУЛА РАСЧЕТА НАЛОГОВ
+                const ndsEconomy = Math.round(totalContractValue * 0.22 / 1.22);
+                const profitTaxEconomy = Math.round((totalContractValue - ndsEconomy) * 0.25);
+                const totalTaxEconomy = ndsEconomy + profitTaxEconomy;
+                
+                taxSaving.textContent = `${formatNumber(totalTaxEconomy)} ₽`;
+                ndsSave.textContent = `${formatNumber(ndsEconomy)} ₽`;
+                profitTaxSave.textContent = `${formatNumber(profitTaxEconomy)} ₽`;
+                totalAmount.textContent = `${formatNumber(totalContractValue)} ₽`;
                 return;
             }
             
-            // Процентная ставка 17% годовых + общая наценка 11%
-            const annualRate = baseRate + markupPercent; // 28% годовых
+            // Процентная ставка 17% годовых + наценка 8% (было 11%)
+            const annualRate = baseRate + markupPercent; // 25% годовых (было 28%)
             const monthlyRate = annualRate / 12 / 100;
             
             // Расчет аннуитетного платежа
@@ -1340,9 +1351,9 @@
             // Общая стоимость договора
             const totalContractValue = advancePayment + totalLeasingPayments + redemptionPayment;
             
-            // Расчет налоговой экономии
-            const ndsEconomy = Math.round(equipmentCost * 0.22 / 1.22);
-            const profitTaxEconomy = Math.round((totalContractValue - advancePayment - redemptionPayment - ndsEconomy) * 0.25);
+            // НОВАЯ ФОРМУЛА РАСЧЕТА НАЛОГОВОЙ ЭКОНОМИИ
+            const ndsEconomy = Math.round(totalContractValue * 0.22 / 1.22);
+            const profitTaxEconomy = Math.round((totalContractValue - ndsEconomy) * 0.25);
             const totalTaxEconomy = ndsEconomy + profitTaxEconomy;
             
             // Обновление UI
@@ -1353,7 +1364,7 @@
             totalAmount.textContent = `${formatNumber(totalContractValue)} ₽`;
         }
         
-        // Генерация графика платежей (аванс первый с названием "Аванс", выкупной последний с названием "Выкупной платеж")
+        // Генерация графика платежей с НДС и налогом на прибыль для каждого платежа
         function generatePaymentSchedule() {
             const advancePercentValue = parseFloat(advanceSlider.value);
             const termValue = parseInt(termSlider.value);
@@ -1367,58 +1378,71 @@
             paymentScheduleBody.innerHTML = '';
             
             let totalPayments = 0;
+            let totalVAT = 0;
+            let totalProfitTax = 0;
             const today = new Date();
             
             // Если стоимость техники 0
             if (equipmentCost === 0) {
                 scheduleTotalPayment.textContent = '0 ₽';
+                scheduleTotalVAT.textContent = '0 ₽';
+                scheduleTotalProfitTax.textContent = '0 ₽';
                 return;
             }
             
             // Добавление авансового платежа (ПЕРВЫЙ - с названием "Аванс")
-            const advanceRow = document.createElement('tr');
-            advanceRow.className = 'advance-row';
-            advanceRow.innerHTML = `
-                <td class="payment-number">Аванс</td>
-                <td>${today.toLocaleDateString('ru-RU')}</td>
-                <td>${formatNumber(advancePayment)} ₽</td>
-                <td>${formatNumber(leasingAmount)} ₽</td>
-            `;
-            paymentScheduleBody.appendChild(advanceRow);
-            totalPayments += advancePayment;
+            if (advancePayment > 0) {
+                const advanceVAT = Math.round(advancePayment * 0.22 / 1.22);
+                const advanceProfitTax = Math.round((advancePayment - advanceVAT) * 0.25);
+                
+                const advanceRow = document.createElement('tr');
+                advanceRow.className = 'advance-row';
+                advanceRow.innerHTML = `
+                    <td class="payment-number">Аванс</td>
+                    <td>${today.toLocaleDateString('ru-RU')}</td>
+                    <td>${formatNumber(advancePayment)} ₽</td>
+                    <td>${formatNumber(advanceVAT)} ₽</td>
+                    <td>${formatNumber(advanceProfitTax)} ₽</td>
+                `;
+                paymentScheduleBody.appendChild(advanceRow);
+                
+                totalPayments += advancePayment;
+                totalVAT += advanceVAT;
+                totalProfitTax += advanceProfitTax;
+            }
             
             // Если сумма лизинга больше 0, добавляем ежемесячные платежи
             if (leasingAmount > 0) {
-                // Процентная ставка с наценкой
+                // Процентная ставка с наценкой (25% вместо 28%)
                 const annualRate = baseRate + markupPercent;
                 const monthlyRate = annualRate / 12 / 100;
                 
                 // Аннуитетный платеж
                 const monthlyPaymentValue = leasingAmount * (monthlyRate * Math.pow(1 + monthlyRate, termValue)) / (Math.pow(1 + monthlyRate, termValue) - 1);
                 
-                let remainingDebt = leasingAmount;
+                // Расчет НДС и налога на прибыль для каждого ежемесячного платежа
+                const monthlyVAT = Math.round(monthlyPaymentValue * 0.22 / 1.22);
+                const monthlyProfitTax = Math.round((monthlyPaymentValue - monthlyVAT) * 0.25);
                 
                 // Добавление ежемесячных платежей (номера 2, 3, 4...)
                 for (let i = 1; i <= termValue; i++) {
-                    const interest = remainingDebt * monthlyRate;
-                    const principal = monthlyPaymentValue - interest;
-                    remainingDebt -= principal;
-                    
-                    if (remainingDebt < 0) remainingDebt = 0;
-                    
                     // Расчет даты платежа
                     const paymentDate = new Date(today);
                     paymentDate.setMonth(paymentDate.getMonth() + i);
                     
                     const row = document.createElement('tr');
                     row.innerHTML = `
-                        <td class="payment-number">${i + 1}</td>
+                        <td class="payment-number">${i + (advancePayment > 0 ? 1 : 0)}</td>
                         <td>${paymentDate.toLocaleDateString('ru-RU')}</td>
                         <td>${formatNumber(monthlyPaymentValue)} ₽</td>
-                        <td>${formatNumber(remainingDebt)} ₽</td>
+                        <td>${formatNumber(monthlyVAT)} ₽</td>
+                        <td>${formatNumber(monthlyProfitTax)} ₽</td>
                     `;
                     paymentScheduleBody.appendChild(row);
+                    
                     totalPayments += monthlyPaymentValue;
+                    totalVAT += monthlyVAT;
+                    totalProfitTax += monthlyProfitTax;
                 }
             }
             
@@ -1427,26 +1451,35 @@
                 const redemptionDate = new Date(today);
                 redemptionDate.setMonth(redemptionDate.getMonth() + termValue + 1);
                 
+                const redemptionVAT = Math.round(redemptionPayment * 0.22 / 1.22);
+                const redemptionProfitTax = Math.round((redemptionPayment - redemptionVAT) * 0.25);
+                
                 const redemptionRow = document.createElement('tr');
                 redemptionRow.className = 'redemption-row';
                 redemptionRow.innerHTML = `
                     <td class="payment-number">Выкупной<br>платеж</td>
                     <td>${redemptionDate.toLocaleDateString('ru-RU')}</td>
                     <td>${formatNumber(redemptionPayment)} ₽</td>
-                    <td>-</td>
+                    <td>${formatNumber(redemptionVAT)} ₽</td>
+                    <td>${formatNumber(redemptionProfitTax)} ₽</td>
                 `;
                 paymentScheduleBody.appendChild(redemptionRow);
+                
                 totalPayments += redemptionPayment;
+                totalVAT += redemptionVAT;
+                totalProfitTax += redemptionProfitTax;
             }
             
-            // Обновление итоговой суммы
+            // Обновление итоговых сумм
             scheduleTotalPayment.textContent = `${formatNumber(totalPayments)} ₽`;
+            scheduleTotalVAT.textContent = `${formatNumber(totalVAT)} ₽`;
+            scheduleTotalProfitTax.textContent = `${formatNumber(totalProfitTax)} ₽`;
         }
         
-        // Функция печати графика платежей
+        // Функция печати графика платежей (обновленная)
         function printSchedule() {
             // Создаем временное окно для печати
-            const printWindow = window.open('', '_blank', 'width=800,height=600');
+            const printWindow = window.open('', '_blank', 'width=900,height=600');
             
             // Получаем данные для печати
             const equipmentCostFormatted = priceInput.value;
@@ -1455,6 +1488,8 @@
             const redemptionFormatted = `${redemptionValue.textContent} (${redemptionRub.textContent})`;
             const monthlyPaymentFormatted = monthlyPayment.textContent;
             const totalAmountFormatted = totalAmount.textContent;
+            const ndsEconomyFormatted = ndsSave.textContent;
+            const profitTaxEconomyFormatted = profitTaxSave.textContent;
             
             // Получаем HTML таблицы
             const tableHTML = document.getElementById('paymentScheduleTable').outerHTML;
@@ -1469,19 +1504,40 @@
                     <title>График платежей по лизингу</title>
                     <style>
                         body { font-family: Arial, sans-serif; padding: 20px; }
-                        h1 { color: #1a3a5f; text-align: center; margin-bottom: 30px; }
-                        .info-section { margin-bottom: 20px; }
-                        .info-row { display: flex; margin-bottom: 8px; }
-                        .info-label { font-weight: bold; width: 250px; }
-                        .print-date { text-align: right; font-size: 12px; color: #666; margin-bottom: 20px; }
-                        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-                        th { background-color: #f2f2f2; padding: 10px; text-align: left; border: 1px solid #ddd; font-weight: bold; }
-                        td { padding: 10px; border: 1px solid #ddd; }
+                        h1 { color: #1a3a5f; text-align: center; margin-bottom: 20px; }
+                        .info-section { 
+                            display: grid; 
+                            grid-template-columns: 1fr 1fr; 
+                            gap: 15px; 
+                            margin-bottom: 25px;
+                            background: #f8fafc;
+                            padding: 15px;
+                            border-radius: 8px;
+                        }
+                        .info-row { margin-bottom: 8px; }
+                        .info-label { font-weight: bold; color: #4a5568; font-size: 13px; }
+                        .info-value { color: #1a3a5f; font-weight: 600; }
+                        .print-date { text-align: right; font-size: 12px; color: #666; margin-bottom: 15px; }
+                        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; }
+                        th { background-color: #f2f2f2; padding: 8px; text-align: left; border: 1px solid #ddd; font-weight: bold; }
+                        td { padding: 8px; border: 1px solid #ddd; }
                         .advance-row { background-color: #f0fff4; }
                         .redemption-row { background-color: #fffaf0; }
                         .total-row { background-color: #f0f7ff; font-weight: bold; }
+                        .tax-summary { 
+                            margin-top: 20px; 
+                            background: #f8fafc; 
+                            padding: 15px; 
+                            border-radius: 8px;
+                            display: grid;
+                            grid-template-columns: 1fr 1fr;
+                            gap: 15px;
+                        }
+                        .tax-item { margin-bottom: 8px; }
+                        .tax-label { font-weight: bold; color: #4a5568; }
+                        .tax-value { color: #1a3a5f; font-weight: 600; }
                         @media print {
-                            body { padding: 0; }
+                            body { padding: 10px; }
                             .no-print { display: none; }
                         }
                     </style>
@@ -1496,34 +1552,46 @@
                     <div class="info-section">
                         <div class="info-row">
                             <div class="info-label">Стоимость техники:</div>
-                            <div>${equipmentCostFormatted} ₽</div>
+                            <div class="info-value">${equipmentCostFormatted} ₽</div>
                         </div>
                         <div class="info-row">
                             <div class="info-label">Первоначальный взнос:</div>
-                            <div>${advanceFormatted}</div>
+                            <div class="info-value">${advanceFormatted}</div>
                         </div>
                         <div class="info-row">
                             <div class="info-label">Срок договора:</div>
-                            <div>${termFormatted}</div>
+                            <div class="info-value">${termFormatted}</div>
                         </div>
                         <div class="info-row">
                             <div class="info-label">Выкупной платеж:</div>
-                            <div>${redemptionFormatted}</div>
+                            <div class="info-value">${redemptionFormatted}</div>
                         </div>
                         <div class="info-row">
                             <div class="info-label">Ежемесячный платеж:</div>
-                            <div>${monthlyPaymentFormatted}</div>
+                            <div class="info-value">${monthlyPaymentFormatted}</div>
                         </div>
                         <div class="info-row">
-                            <div class="info-label">Общая стоимость договора:</div>
-                            <div>${totalAmountFormatted}</div>
+                            <div class="info-label">Общая стоимость:</div>
+                            <div class="info-value">${totalAmountFormatted}</div>
                         </div>
                     </div>
                     
                     ${tableHTML}
                     
-                    <div style="margin-top: 30px; font-size: 12px; color: #666;">
+                    <div class="tax-summary">
+                        <div class="tax-item">
+                            <div class="tax-label">Общий НДС к возмещению:</div>
+                            <div class="tax-value">${ndsEconomyFormatted}</div>
+                        </div>
+                        <div class="tax-item">
+                            <div class="tax-label">Общая экономия по налогу на прибыль:</div>
+                            <div class="tax-value">${profitTaxEconomyFormatted}</div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 20px; font-size: 11px; color: #666; padding: 10px; border-top: 1px solid #e2e8f0;">
                         <p>*Все расчеты являются предварительными. Точные условия будут рассчитаны после консультации с менеджером.</p>
+                        <p>**НДС рассчитывается по ставке 22%, налог на прибыль по ставке 25%.</p>
                     </div>
                     
                     <div class="no-print" style="margin-top: 30px; text-align: center;">
@@ -1718,7 +1786,7 @@
             updateRedemptionValue();
             calculateLeasing();
             
-            console.log('Калькулятор инициализирован');
+            console.log('Калькулятор инициализирован с обновленными формулами и графиком платежей');
         }
         
         // Запуск инициализации при загрузке
