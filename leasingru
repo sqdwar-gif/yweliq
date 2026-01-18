@@ -437,7 +437,7 @@
                 
                 <div class="input-group">
                     <div class="input-header">
-                        <label for="advanceSlider"> Аванс </label>
+                        <label for="advanceSlider">Аванс</label>
                         <div class="value-container">
                             <span class="value" id="advanceValue">20%</span>
                             <span class="value-rub" id="advanceRub">300 000 ₽</span>
