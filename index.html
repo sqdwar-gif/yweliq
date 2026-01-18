@@ -8,11 +8,39 @@
     <title>Лизинговый калькулятор</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
     
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
-        body { background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%); color: #333; line-height: 1.6; padding: 15px; min-height: 100vh; }
-        .container { max-width: 1100px; margin: 0 auto; background: white; border-radius: 18px; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08); overflow: hidden; }
+        body { 
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%); 
+            color: #333; 
+            line-height: 1.6; 
+            padding: 15px; 
+            min-height: 100vh;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+        }
+        
+        /* Защита от выделения текста */
+        .container, .input-section, .result-section, .modal-content, .phone-modal-content {
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+        }
+        
+        .container { 
+            max-width: 1100px; 
+            margin: 0 auto; 
+            background: white; 
+            border-radius: 18px; 
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08); 
+            overflow: hidden;
+            position: relative;
+        }
         
         /* Защитные поля */
         .honeypot-field {
@@ -22,6 +50,16 @@
             opacity: 0 !important;
             height: 0 !important;
             width: 0 !important;
+        }
+        
+        /* Анти-копирование */
+        .no-copy {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
         }
         
         /* Верхние иконки - синий Telegram и зеленый телефон */
@@ -92,14 +130,36 @@
             text-align: center;
             position: relative;
         }
-        header h1 { font-size: 1.8rem; margin-bottom: 8px; }
-        header p { opacity: 0.9; font-size: 1rem; }
-        
-        .calculator-wrapper { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 25px; padding: 25px; }
-        @media (max-width: 768px) { 
-            .calculator-wrapper { grid-template-columns: 1fr; gap: 20px; }
+        header h1 { 
+            font-size: 1.8rem; 
+            margin-bottom: 8px;
+            cursor: default;
         }
-        .input-section, .result-section { background: #f8fafc; padding: 22px; border-radius: 14px; border: 1px solid #e2e8f0; }
+        header p { 
+            opacity: 0.9; 
+            font-size: 1rem;
+            cursor: default;
+        }
+        
+        .calculator-wrapper { 
+            display: grid; 
+            grid-template-columns: 1.2fr 0.8fr; 
+            gap: 25px; 
+            padding: 25px; 
+        }
+        @media (max-width: 768px) { 
+            .calculator-wrapper { 
+                grid-template-columns: 1fr; 
+                gap: 20px; 
+            }
+        }
+        .input-section, .result-section { 
+            background: #f8fafc; 
+            padding: 22px; 
+            border-radius: 14px; 
+            border: 1px solid #e2e8f0;
+            cursor: default;
+        }
         
         /* Уменьшаем шрифты разделов */
         .section-title { 
@@ -110,20 +170,52 @@
             border-bottom: 2px solid #e2e8f0; 
             display: flex; 
             align-items: center; 
-            gap: 8px; 
+            gap: 8px;
+            cursor: default;
         }
         
-        .input-group { margin-bottom: 18px; }
-        .input-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
-        .input-header label { font-weight: 600; color: #2d3748; font-size: 0.9rem; }
+        .input-group { 
+            margin-bottom: 18px; 
+        }
+        .input-header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 6px;
+            cursor: default;
+        }
+        .input-header label { 
+            font-weight: 600; 
+            color: #2d3748; 
+            font-size: 0.9rem;
+            cursor: default;
+        }
         
         /* УБИРАЕМ дублирующую сумму в правом углу для стоимости техники */
         .price-input-container {
             margin-top: 8px;
         }
         
-        .range-slider { width: 100%; height: 8px; -webkit-appearance: none; background: #cbd5e0; border-radius: 5px; outline: none; margin-bottom: 5px; }
-        .range-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; background: #2c5282; border-radius: 50%; cursor: pointer; border: 3px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .range-slider { 
+            width: 100%; 
+            height: 8px; 
+            -webkit-appearance: none; 
+            background: #cbd5e0; 
+            border-radius: 5px; 
+            outline: none; 
+            margin-bottom: 5px;
+            cursor: pointer;
+        }
+        .range-slider::-webkit-slider-thumb { 
+            -webkit-appearance: none; 
+            width: 22px; 
+            height: 22px; 
+            background: #2c5282; 
+            border-radius: 50%; 
+            cursor: pointer; 
+            border: 3px solid white; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2); 
+        }
         
         /* УБИРАЕМ отображение диапазона 0-100 млн для стоимости техники */
         .range-limits { 
@@ -132,10 +224,14 @@
             margin-top: 5px; 
             font-size: 0.75rem; 
             color: #718096;
-            /* Скрываем для стоимости техники, оставляем для других полей */
+            cursor: default;
         }
         
-        .input-with-controls { display: flex; align-items: center; gap: 12px; }
+        .input-with-controls { 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+        }
         .money-input { 
             width: 100%; 
             max-width: 200px;
@@ -147,9 +243,16 @@
             color: #1a3a5f;
             text-align: right;
             letter-spacing: 0.5px;
+            cursor: text;
+            user-select: text;
+            -webkit-user-select: text;
+            -moz-user-select: text;
+            -ms-user-select: text;
         }
         @media (max-width: 768px) {
-            .money-input { max-width: 100%; }
+            .money-input { 
+                max-width: 100%; 
+            }
         }
         .money-input:focus { 
             outline: none; 
@@ -161,6 +264,7 @@
             color: #4a5568; 
             white-space: nowrap;
             font-size: 0.9rem;
+            cursor: default;
         }
         
         /* Для процентов - сохраняем отображение */
@@ -174,6 +278,7 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 8px;
+            cursor: default;
         }
         
         .percent-display .value { 
@@ -181,6 +286,7 @@
             color: #4a5568;
             font-size: 0.9rem; 
             text-align: right;
+            cursor: default;
         }
         
         .percent-display .value-rub { 
@@ -189,20 +295,78 @@
             font-size: 0.7rem;
             text-align: right;
             padding: 0;
+            cursor: default;
         }
         
         /* Уменьшаем шрифты в результатах */
-        .result-box { background: white; border-radius: 12px; padding: 16px; margin-bottom: 16px; border-left: 5px solid #2c5282; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.03); }
-        .result-main { border-left-color: #e67e22; background: linear-gradient(to right, #fffaf0, #fff5e6); }
-        .result-label { font-size: 0.85rem; color: #4a5568; margin-bottom: 4px; }
-        .result-value { font-size: 1.4rem; font-weight: 800; color: #1a3a5f; }
-        .result-note { font-size: 0.75rem; color: #e67e22; margin-top: 6px; font-style: italic; }
-        .result-sub { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 18px; }
-        .disclaimer { font-size: 0.7rem; color: #718096; text-align: center; margin-top: 20px; padding: 10px; border-top: 1px solid #e2e8f0; line-height: 1.5; }
-        .info-icon { color: #2c5282; margin-left: 5px; cursor: help; font-size: 0.85rem; }
-        .contact-form { margin-top: 20px; }
-        .form-group { margin-bottom: 16px; }
-        .form-group label { display: block; margin-bottom: 6px; font-weight: 600; color: #2d3748; font-size: 0.9rem; }
+        .result-box { 
+            background: white; 
+            border-radius: 12px; 
+            padding: 16px; 
+            margin-bottom: 16px; 
+            border-left: 5px solid #2c5282; 
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.03);
+            cursor: default;
+        }
+        .result-main { 
+            border-left-color: #e67e22; 
+            background: linear-gradient(to right, #fffaf0, #fff5e6); 
+        }
+        .result-label { 
+            font-size: 0.85rem; 
+            color: #4a5568; 
+            margin-bottom: 4px;
+            cursor: default;
+        }
+        .result-value { 
+            font-size: 1.4rem; 
+            font-weight: 800; 
+            color: #1a3a5f;
+            cursor: default;
+        }
+        .result-note { 
+            font-size: 0.75rem; 
+            color: #e67e22; 
+            margin-top: 6px; 
+            font-style: italic;
+            cursor: default;
+        }
+        .result-sub { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 12px; 
+            margin-top: 18px; 
+        }
+        .disclaimer { 
+            font-size: 0.7rem; 
+            color: #718096; 
+            text-align: center; 
+            margin-top: 20px; 
+            padding: 10px; 
+            border-top: 1px solid #e2e8f0; 
+            line-height: 1.5;
+            cursor: default;
+        }
+        .info-icon { 
+            color: #2c5282; 
+            margin-left: 5px; 
+            cursor: help; 
+            font-size: 0.85rem; 
+        }
+        .contact-form { 
+            margin-top: 20px; 
+        }
+        .form-group { 
+            margin-bottom: 16px; 
+        }
+        .form-group label { 
+            display: block; 
+            margin-bottom: 6px; 
+            font-weight: 600; 
+            color: #2d3748; 
+            font-size: 0.9rem;
+            cursor: default;
+        }
         .form-group input { 
             width: 100%; 
             padding: 10px 12px;
@@ -210,6 +374,11 @@
             border-radius: 10px; 
             font-size: 0.95rem;
             transition: all 0.3s ease;
+            cursor: text;
+            user-select: text;
+            -webkit-user-select: text;
+            -moz-user-select: text;
+            -ms-user-select: text;
         }
         .form-group input:focus { 
             outline: none; 
@@ -226,6 +395,8 @@
             font-size: 0.95rem;
             /* Убираем видимость скобок */
             letter-spacing: 0;
+            cursor: text;
+            user-select: text;
         }
         
         /* Скрываем скобки в номере телефона */
@@ -234,8 +405,16 @@
             letter-spacing: 0;
         }
         
-        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .form-optional { color: #718096; font-size: 0.8rem; }
+        .form-row { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 12px; 
+        }
+        .form-optional { 
+            color: #718096; 
+            font-size: 0.8rem;
+            cursor: default;
+        }
         
         /* Стили для чекбокса согласия */
         .checkbox-group {
@@ -244,12 +423,14 @@
             background: #f8fafc;
             border-radius: 8px;
             border: 1px solid #e2e8f0;
+            cursor: default;
         }
         
         .checkbox-container {
             display: flex;
             align-items: flex-start;
             gap: 10px;
+            cursor: default;
         }
         
         .checkbox-container input[type="checkbox"] {
@@ -263,6 +444,7 @@
             font-size: 0.85rem;
             color: #4a5568;
             line-height: 1.4;
+            cursor: pointer;
         }
         
         .checkbox-label a {
@@ -279,9 +461,12 @@
             grid-template-columns: 1fr 1fr;
             gap: 10px;
             margin-top: 16px;
+            cursor: default;
         }
         @media (max-width: 480px) {
-            .tax-savings-compact { grid-template-columns: 1fr; }
+            .tax-savings-compact { 
+                grid-template-columns: 1fr; 
+            }
         }
         .tax-savings-item {
             background: white;
@@ -289,6 +474,7 @@
             padding: 10px;
             border: 1px solid #e2e8f0;
             text-align: center;
+            cursor: default;
         }
         .tax-savings-label {
             font-size: 0.7rem;
@@ -299,17 +485,20 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            cursor: default;
         }
         .tax-savings-value {
             font-size: 1rem;
             font-weight: 700;
             color: #1a3a5f;
+            cursor: default;
         }
         
         .result-footer {
             margin-top: 18px;
             padding-top: 16px;
             border-top: 1px solid #e2e8f0;
+            cursor: default;
         }
         .total-contract {
             display: flex;
@@ -319,16 +508,19 @@
             background: #f0f7ff;
             border-radius: 10px;
             border: 1px solid #c3dafe;
+            cursor: default;
         }
         .total-label {
             font-size: 0.9rem;
             font-weight: 600;
             color: #2d3748;
+            cursor: default;
         }
         .total-value {
             font-size: 1.1rem;
             font-weight: 800;
             color: #1a3a5f;
+            cursor: default;
         }
         
         /* 3 кнопки в форме - Telegram, Email, Звонок */
@@ -345,7 +537,9 @@
             }
         }
         @media (max-width: 480px) {
-            .form-actions { grid-template-columns: 1fr; }
+            .form-actions { 
+                grid-template-columns: 1fr; 
+            }
         }
         
         .form-action-btn {
@@ -465,6 +659,7 @@
             font-weight: 600;
             color: #1a3a5f;
             font-size: 0.8rem;
+            cursor: default;
         }
         
         .modal-overlay {
@@ -475,7 +670,7 @@
             width: 100%;
             height: 100%;
             background: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
+            z-index: 10000;
             justify-content: center;
             align-items: center;
             padding: 15px;
@@ -484,11 +679,12 @@
             background: white;
             border-radius: 15px;
             width: 100%;
-            max-width: 800px;
+            max-width: 900px;
             max-height: 80vh;
             overflow-y: auto;
             padding: 20px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            cursor: default;
         }
         .modal-header {
             display: flex;
@@ -497,11 +693,13 @@
             margin-bottom: 16px;
             padding-bottom: 12px;
             border-bottom: 2px solid #e2e8f0;
+            cursor: default;
         }
         .modal-title {
             font-size: 1.1rem;
             color: #1a3a5f;
             font-weight: 700;
+            cursor: default;
         }
         .close-modal {
             background: none;
@@ -519,6 +717,7 @@
             border-collapse: collapse;
             margin-top: 12px;
             font-size: 0.85rem;
+            cursor: default;
         }
         .payment-table th {
             background: #f7fafc;
@@ -528,12 +727,14 @@
             color: #2d3748;
             border-bottom: 2px solid #e2e8f0;
             font-size: 0.85rem;
+            cursor: default;
         }
         .payment-table td {
             padding: 8px 10px;
             border-bottom: 1px solid #e2e8f0;
             color: #4a5568;
             font-size: 0.85rem;
+            cursor: default;
         }
         .payment-table tr:hover {
             background: #f8fafc;
@@ -543,6 +744,12 @@
             color: #1a3a5f;
             text-align: center;
             width: 50px;
+        }
+        .payment-table .advance-row {
+            background: #f0fff4;
+        }
+        .payment-table .redemption-row {
+            background: #fffaf0;
         }
         .payment-table .total-row {
             background: #f0f7ff;
@@ -585,7 +792,7 @@
             width: 100%;
             height: 100%;
             background: rgba(0, 0, 0, 0.5);
-            z-index: 1001;
+            z-index: 10001;
             justify-content: center;
             align-items: center;
             padding: 15px;
@@ -598,12 +805,14 @@
             padding: 22px;
             text-align: center;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            cursor: default;
         }
         .phone-modal-title {
             font-size: 1.1rem;
             color: #1a3a5f;
             margin-bottom: 16px;
             font-weight: 600;
+            cursor: default;
         }
         .phone-number-display {
             font-size: 1.5rem;
@@ -614,6 +823,8 @@
             background: #f8fafc;
             border-radius: 10px;
             border: 2px solid #e2e8f0;
+            cursor: default;
+            user-select: text;
         }
         .phone-modal-buttons {
             display: flex;
@@ -650,24 +861,50 @@
             font-size: 0.8rem;
             margin-top: 8px;
             display: none;
+            cursor: default;
         }
         
         .vat-amount, .profit-tax-amount {
             font-weight: 600;
             color: #2d3748;
+            cursor: default;
         }
         
         /* Стиль для подсказок формул (скрыт по умолчанию) */
         .formula-hint {
             display: none;
         }
+        
+        /* Защита от копирования */
+        .protection-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            z-index: 999999;
+            pointer-events: none;
+        }
+        
+        /* Скрытые стили для защиты */
+        .hidden-protection {
+            display: none;
+        }
     </style>
 </head>
-<body>
+<body class="no-copy">
+    <!-- Скрытый защитный слой -->
+    <div class="protection-overlay" id="protectionOverlay"></div>
+    
     <!-- Скрытое поле для защиты от ботов -->
     <input type="text" class="honeypot-field" name="bot_check" autocomplete="off" tabindex="-1">
     <!-- Скрытое поле для email менеджера -->
     <input type="hidden" id="managerEmail" value="yweliq@yandex.ru">
+    
+    <!-- Скрытая защита -->
+    <div class="hidden-protection" id="antiCopy">Защищено от копирования</div>
+    <div class="hidden-protection" id="antiDevTools">DevTools заблокированы</div>
     
     <div class="container">
         <header>
@@ -676,10 +913,10 @@
             
             <!-- Верхние иконки - синий Telegram и зеленый телефон -->
             <div class="header-icons">
-                <a href="https://t.me/YWeliQ" class="header-icon-link telegram-icon" target="_blank" title="Написать в Telegram">
+                <a href="https://t.me/YWeliQ" class="header-icon-link telegram-icon" target="_blank" title="Написать в Telegram" onclick="logClick('telegram_header')">
                     <i class="fab fa-telegram-plane"></i>
                 </a>
-                <a href="tel:+79990387395" class="header-icon-link phone-icon" title="Позвонить">
+                <a href="tel:+79990387395" class="header-icon-link phone-icon" title="Позвонить" onclick="logClick('phone_header')">
                     <i class="fas fa-phone"></i>
                 </a>
             </div>
@@ -693,13 +930,11 @@
                 <div class="input-group">
                     <div class="input-header">
                         <label for="priceInput">Стоимость техники</label>
-                        <!-- УБИРАЕМ дублирующую сумму справа -->
                     </div>
                     <div class="input-with-controls">
                         <input type="text" id="priceInput" class="money-input" value="1 500 000" data-max="100 000 000" autocomplete="off">
                         <span class="input-suffix">₽</span>
                     </div>
-                    <!-- УБИРАЕМ диапазон 0-100 млн (оставляем только слайдер) -->
                     <input type="range" id="priceSlider" class="range-slider" min="0" max="100000000" step="100000" value="1500000" style="margin-top: 10px;">
                 </div>
                 
@@ -718,9 +953,9 @@
                         
                         <!-- Кнопки управления с шагом 0.1% -->
                         <div class="percent-controls">
-                            <button type="button" class="percent-btn" id="decreaseAdvanceBtn">-</button>
+                            <button type="button" class="percent-btn" id="decreaseAdvanceBtn" onclick="adjustAdvance(-0.1)">-</button>
                             <div class="percent-value-display" id="advancePercentDisplay">20.0%</div>
-                            <button type="button" class="percent-btn" id="increaseAdvanceBtn">+</button>
+                            <button type="button" class="percent-btn" id="increaseAdvanceBtn" onclick="adjustAdvance(0.1)">+</button>
                         </div>
                     </div>
                 </div>
@@ -740,9 +975,9 @@
                         
                         <!-- Кнопки управления с шагом 1 месяц -->
                         <div class="percent-controls">
-                            <button type="button" class="percent-btn" id="decreaseTermBtn">-</button>
+                            <button type="button" class="percent-btn" id="decreaseTermBtn" onclick="adjustTerm(-1)">-</button>
                             <div class="percent-value-display" id="termDisplay">36 мес.</div>
-                            <button type="button" class="percent-btn" id="increaseTermBtn">+</button>
+                            <button type="button" class="percent-btn" id="increaseTermBtn" onclick="adjustTerm(1)">+</button>
                         </div>
                     </div>
                 </div>
@@ -762,9 +997,9 @@
                         
                         <!-- Кнопки управления с шагом 0.1% -->
                         <div class="percent-controls">
-                            <button type="button" class="percent-btn" id="decreaseRedemptionBtn">-</button>
+                            <button type="button" class="percent-btn" id="decreaseRedemptionBtn" onclick="adjustRedemption(-0.1)">-</button>
                             <div class="percent-value-display" id="redemptionPercentDisplay">10.0%</div>
-                            <button type="button" class="percent-btn" id="increaseRedemptionBtn">+</button>
+                            <button type="button" class="percent-btn" id="increaseRedemptionBtn" onclick="adjustRedemption(0.1)">+</button>
                         </div>
                     </div>
                 </div>
@@ -802,7 +1037,7 @@
                 </div>
                 
                 <div class="open-schedule-btn-container">
-                    <button class="open-schedule-btn" id="openScheduleBtn">
+                    <button class="open-schedule-btn" id="openScheduleBtn" onclick="openScheduleModal()">
                         <i class="fas fa-chart-line"></i> Открыть график платежей
                     </button>
                 </div>
@@ -830,19 +1065,19 @@
                         <div class="checkbox-container">
                             <input type="checkbox" id="privacyPolicy" required>
                             <label for="privacyPolicy" class="checkbox-label">
-                                Я соглашаюсь с <a href="#" target="_blank">политикой конфиденциальности</a> и даю согласие на обработку персональных данных
+                                Я соглашаюсь с <a href="#" target="_blank" onclick="logClick('privacy_policy')">политикой конфиденциальности</a> и даю согласие на обработку персональных данных
                             </label>
                         </div>
                     </div>
                     
                     <div class="form-actions">
-                        <button type="button" class="form-action-btn telegram-form-btn" id="sendTelegramBtn">
+                        <button type="button" class="form-action-btn telegram-form-btn" id="sendTelegramBtn" onclick="sendTelegram()">
                             <i class="fab fa-telegram-plane"></i> Telegram
                         </button>
-                        <button type="button" class="form-action-btn email-form-btn" id="sendEmailBtn">
+                        <button type="button" class="form-action-btn email-form-btn" id="sendEmailBtn" onclick="sendEmail()">
                             <i class="fas fa-envelope"></i> Email
                         </button>
-                        <button type="button" class="form-action-btn phone-form-btn" id="showPhoneBtn">
+                        <button type="button" class="form-action-btn phone-form-btn" id="showPhoneBtn" onclick="showPhoneModal()">
                             <i class="fas fa-phone"></i> Позвонить
                         </button>
                     </div>
@@ -860,11 +1095,11 @@
         <div class="modal-content">
             <div class="modal-header">
                 <div class="modal-title">График платежей по лизингу</div>
-                <button class="close-modal" id="closeScheduleModal">×</button>
+                <button class="close-modal" id="closeScheduleModal" onclick="closeScheduleModal()">×</button>
             </div>
             
             <div class="modal-actions">
-                <button class="modal-action-btn modal-save-print-btn" id="saveScheduleBtn">
+                <button class="modal-action-btn modal-save-print-btn" id="saveScheduleBtn" onclick="saveScheduleToPDF()">
                     <i class="fas fa-download"></i> Сохранить PDF
                 </button>
             </div>
@@ -896,21 +1131,103 @@
     <div class="phone-modal" id="phoneModal">
         <div class="phone-modal-content">
             <div class="phone-modal-title">Позвонить менеджеру</div>
-            <div class="phone-number-display" id="phoneNumberDisplay">+7 (999) 038-73-95</div>
+            <div class="phone-number-display" id="phoneNumberDisplay">+7 999 038-73-95</div>
             <div class="phone-modal-buttons">
-                <button class="phone-modal-btn copy-phone-btn" id="copyPhoneBtn">Скопировать номер</button>
-                <button class="phone-modal-btn close-phone-btn" id="closePhoneModal">Закрыть</button>
+                <button class="phone-modal-btn copy-phone-btn" id="copyPhoneBtn" onclick="copyPhoneNumber()">Скопировать номер</button>
+                <button class="phone-modal-btn close-phone-btn" id="closePhoneModal" onclick="closePhoneModal()">Закрыть</button>
             </div>
             <div class="copy-success" id="copySuccess">Номер скопирован в буфер обмена!</div>
         </div>
     </div>
 
     <script>
+        // ============================================
+        // ЗАЩИТА КОДА
+        // ============================================
+        
+        // Блокировка контекстного меню
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            return false;
+        });
+        
+        // Блокировка клавиш для DevTools
+        document.addEventListener('keydown', function(e) {
+            // F12
+            if (e.keyCode === 123) {
+                e.preventDefault();
+                return false;
+            }
+            // Ctrl+Shift+I
+            if (e.ctrlKey && e.shiftKey && e.keyCode === 73) {
+                e.preventDefault();
+                return false;
+            }
+            // Ctrl+Shift+J
+            if (e.ctrlKey && e.shiftKey && e.keyCode === 74) {
+                e.preventDefault();
+                return false;
+            }
+            // Ctrl+U
+            if (e.ctrlKey && e.keyCode === 85) {
+                e.preventDefault();
+                return false;
+            }
+            // Ctrl+S
+            if (e.ctrlKey && e.keyCode === 83) {
+                e.preventDefault();
+                return false;
+            }
+            // Ctrl+C, Ctrl+V разрешены, но логируем
+            if (e.ctrlKey && (e.keyCode === 67 || e.keyCode === 86)) {
+                // Разрешаем, но логируем
+                console.log('Копирование/вставка зафиксированы');
+            }
+        });
+        
+        // Защита от копирования через выделение
+        document.addEventListener('selectstart', function(e) {
+            if (!e.target.matches('input, textarea, .phone-number-display')) {
+                e.preventDefault();
+            }
+        });
+        
+        // Защита от драг-н-дроп
+        document.addEventListener('dragstart', function(e) {
+            if (!e.target.matches('input, textarea')) {
+                e.preventDefault();
+            }
+        });
+        
+        // Детектирование открытия DevTools
+        let devToolsOpen = false;
+        const threshold = 160;
+        
+        function checkDevTools() {
+            const widthThreshold = window.outerWidth - window.innerWidth > threshold;
+            const heightThreshold = window.outerHeight - window.innerHeight > threshold;
+            
+            if (widthThreshold || heightThreshold) {
+                if (!devToolsOpen) {
+                    devToolsOpen = true;
+                    document.body.innerHTML = '<div style="padding: 50px; text-align: center; font-size: 24px; color: red;">Инструменты разработчика заблокированы. Пожалуйста, закройте DevTools.</div>';
+                    throw new Error('DevTools detected');
+                }
+            }
+        }
+        
+        setInterval(checkDevTools, 1000);
+        
+        // ============================================
+        // ОСНОВНОЙ КОД КАЛЬКУЛЯТОРА
+        // ============================================
+        
         // Основные переменные
-        const equipmentCost = parseFloat(document.getElementById('priceInput').value.replace(/\s/g, '')) || 1500000;
+        let equipmentCost = 1500000;
         let advancePercent = 20.0;
         let termMonths = 36;
         let redemptionPercent = 10.0;
+        const markupPercent = 4; // Увеличена наценка до 4%
         
         // Элементы DOM
         const priceInput = document.getElementById('priceInput');
@@ -927,14 +1244,6 @@
         const redemptionRub = document.getElementById('redemptionRub');
         const redemptionPercentDisplay = document.getElementById('redemptionPercentDisplay');
         
-        // Кнопки управления
-        const decreaseAdvanceBtn = document.getElementById('decreaseAdvanceBtn');
-        const increaseAdvanceBtn = document.getElementById('increaseAdvanceBtn');
-        const decreaseTermBtn = document.getElementById('decreaseTermBtn');
-        const increaseTermBtn = document.getElementById('increaseTermBtn');
-        const decreaseRedemptionBtn = document.getElementById('decreaseRedemptionBtn');
-        const increaseRedemptionBtn = document.getElementById('increaseRedemptionBtn');
-        
         // Результаты
         const monthlyPayment = document.getElementById('monthlyPayment');
         const taxSaving = document.getElementById('taxSaving');
@@ -944,23 +1253,13 @@
         
         // Модальные окна
         const scheduleModal = document.getElementById('scheduleModal');
-        const openScheduleBtn = document.getElementById('openScheduleBtn');
-        const closeScheduleModal = document.getElementById('closeScheduleModal');
         const paymentScheduleBody = document.getElementById('paymentScheduleBody');
         const scheduleTotalPayment = document.getElementById('scheduleTotalPayment');
-        const saveScheduleBtn = document.getElementById('saveScheduleBtn');
-        
-        // Модальное окно телефона
         const phoneModal = document.getElementById('phoneModal');
-        const showPhoneBtn = document.getElementById('showPhoneBtn');
-        const closePhoneModal = document.getElementById('closePhoneModal');
-        const copyPhoneBtn = document.getElementById('copyPhoneBtn');
-        const copySuccess = document.getElementById('copySuccess');
-        const phoneNumberDisplay = document.getElementById('phoneNumberDisplay');
         
         // Форматирование чисел
         function formatNumber(num) {
-            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+            return Math.round(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
         }
         
         function parseFormattedNumber(str) {
@@ -970,21 +1269,29 @@
         // Обновление стоимости техники
         function updateEquipmentCost() {
             const value = parseFormattedNumber(priceInput.value);
-            const sliderValue = Math.min(Math.max(value, 0), 100000000);
+            const sliderValue = Math.min(Math.max(value, 100000), 100000000);
             
             priceSlider.value = sliderValue;
             priceInput.value = formatNumber(sliderValue);
             
+            equipmentCost = sliderValue;
             updateAdvanceValue();
             updateRedemptionValue();
             calculateLeasing();
         }
         
-        // Обновление первоначального взноса
+        // Регулировка первоначального взноса
+        function adjustAdvance(delta) {
+            let value = parseFloat(advanceSlider.value);
+            value += delta;
+            value = Math.max(5, Math.min(50, value));
+            advanceSlider.value = value.toFixed(1);
+            updateAdvanceValue();
+        }
+        
         function updateAdvanceValue() {
-            const equipmentValue = parseFormattedNumber(priceInput.value);
             advancePercent = parseFloat(advanceSlider.value);
-            const advanceRubValue = (equipmentValue * advancePercent / 100).toFixed(0);
+            const advanceRubValue = (equipmentCost * advancePercent / 100);
             
             advanceValue.textContent = `${advancePercent.toFixed(1)}%`;
             advanceRub.textContent = `${formatNumber(advanceRubValue)} ₽`;
@@ -993,7 +1300,15 @@
             calculateLeasing();
         }
         
-        // Обновление срока договора
+        // Регулировка срока договора
+        function adjustTerm(delta) {
+            let value = parseInt(termSlider.value);
+            value += delta;
+            value = Math.max(6, Math.min(60, value));
+            termSlider.value = value;
+            updateTermValue();
+        }
+        
         function updateTermValue() {
             termMonths = parseInt(termSlider.value);
             termValue.textContent = termMonths;
@@ -1002,11 +1317,18 @@
             calculateLeasing();
         }
         
-        // Обновление выкупного платежа
+        // Регулировка выкупного платежа
+        function adjustRedemption(delta) {
+            let value = parseFloat(redemptionSlider.value);
+            value += delta;
+            value = Math.max(0, Math.min(15, value));
+            redemptionSlider.value = value.toFixed(1);
+            updateRedemptionValue();
+        }
+        
         function updateRedemptionValue() {
-            const equipmentValue = parseFormattedNumber(priceInput.value);
             redemptionPercent = parseFloat(redemptionSlider.value);
-            const redemptionRubValue = (equipmentValue * redemptionPercent / 100).toFixed(0);
+            const redemptionRubValue = (equipmentCost * redemptionPercent / 100);
             
             redemptionValue.textContent = `${redemptionPercent.toFixed(1)}%`;
             redemptionRub.textContent = `${formatNumber(redemptionRubValue)} ₽`;
@@ -1015,9 +1337,8 @@
             calculateLeasing();
         }
         
-        // Расчет лизинга
+        // Расчет лизинга с увеличенной наценкой 4%
         function calculateLeasing() {
-            const equipmentCost = parseFormattedNumber(priceInput.value);
             const advancePercentValue = parseFloat(advanceSlider.value);
             const termValue = parseInt(termSlider.value);
             const redemptionPercentValue = parseFloat(redemptionSlider.value);
@@ -1027,8 +1348,8 @@
             const redemptionPayment = equipmentCost * redemptionPercentValue / 100;
             const leasingAmount = equipmentCost - advancePayment;
             
-            // Процентная ставка (условная 10% годовых)
-            const annualRate = 10;
+            // Процентная ставка 10% годовых + наценка 4%
+            const annualRate = 10 + markupPercent; // 14% годовых
             const monthlyRate = annualRate / 12 / 100;
             
             // Расчет аннуитетного платежа
@@ -1040,22 +1361,21 @@
             // Общая стоимость договора
             const totalContractValue = advancePayment + totalLeasingPayments + redemptionPayment;
             
-            // Расчет налоговой экономии (скрываем формулы)
+            // Расчет налоговой экономии
             const ndsEconomy = Math.round(equipmentCost * 0.22 / 1.22);
             const profitTaxEconomy = Math.round((totalContractValue - advancePayment - redemptionPayment - ndsEconomy) * 0.25);
             const totalTaxEconomy = ndsEconomy + profitTaxEconomy;
             
             // Обновление UI
-            monthlyPayment.textContent = `${formatNumber(Math.round(monthlyPaymentValue))} ₽`;
+            monthlyPayment.textContent = `${formatNumber(monthlyPaymentValue)} ₽`;
             taxSaving.textContent = `${formatNumber(totalTaxEconomy)} ₽`;
             ndsSave.textContent = `${formatNumber(ndsEconomy)} ₽`;
             profitTaxSave.textContent = `${formatNumber(profitTaxEconomy)} ₽`;
-            totalAmount.textContent = `${formatNumber(Math.round(totalContractValue))} ₽`;
+            totalAmount.textContent = `${formatNumber(totalContractValue)} ₽`;
         }
         
-        // Генерация графика платежей
+        // Генерация графика платежей (аванс первый, выкупной последний)
         function generatePaymentSchedule() {
-            const equipmentCost = parseFormattedNumber(priceInput.value);
             const advancePercentValue = parseFloat(advanceSlider.value);
             const termValue = parseInt(termSlider.value);
             const redemptionPercentValue = parseFloat(redemptionSlider.value);
@@ -1064,8 +1384,8 @@
             const redemptionPayment = equipmentCost * redemptionPercentValue / 100;
             const leasingAmount = equipmentCost - advancePayment;
             
-            // Процентная ставка
-            const annualRate = 10;
+            // Процентная ставка с наценкой
+            const annualRate = 10 + markupPercent;
             const monthlyRate = annualRate / 12 / 100;
             
             // Аннуитетный платеж
@@ -1078,13 +1398,14 @@
             // Очистка таблицы
             paymentScheduleBody.innerHTML = '';
             
-            // Добавление первоначального взноса
+            // Добавление авансового платежа (ПЕРВЫЙ)
             const advanceRow = document.createElement('tr');
+            advanceRow.className = 'advance-row';
             advanceRow.innerHTML = `
-                <td class="payment-number">-</td>
+                <td class="payment-number">1</td>
                 <td>${today.toLocaleDateString('ru-RU')}</td>
-                <td>${formatNumber(Math.round(advancePayment))} ₽</td>
-                <td>${formatNumber(Math.round(remainingDebt))} ₽</td>
+                <td>${formatNumber(advancePayment)} ₽</td>
+                <td>${formatNumber(remainingDebt)} ₽</td>
             `;
             paymentScheduleBody.appendChild(advanceRow);
             totalPayments += advancePayment;
@@ -1103,25 +1424,26 @@
                 
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td class="payment-number">${i}</td>
+                    <td class="payment-number">${i + 1}</td>
                     <td>${paymentDate.toLocaleDateString('ru-RU')}</td>
-                    <td>${formatNumber(Math.round(monthlyPaymentValue))} ₽</td>
-                    <td>${formatNumber(Math.round(remainingDebt))} ₽</td>
+                    <td>${formatNumber(monthlyPaymentValue)} ₽</td>
+                    <td>${formatNumber(remainingDebt)} ₽</td>
                 `;
                 paymentScheduleBody.appendChild(row);
                 totalPayments += monthlyPaymentValue;
             }
             
-            // Добавление выкупного платежа
+            // Добавление выкупного платежа (ПОСЛЕДНИЙ)
             if (redemptionPayment > 0) {
                 const redemptionDate = new Date(today);
                 redemptionDate.setMonth(redemptionDate.getMonth() + termValue + 1);
                 
                 const redemptionRow = document.createElement('tr');
+                redemptionRow.className = 'redemption-row';
                 redemptionRow.innerHTML = `
-                    <td class="payment-number">${termValue + 1}</td>
+                    <td class="payment-number">${termValue + 2}</td>
                     <td>${redemptionDate.toLocaleDateString('ru-RU')}</td>
-                    <td>${formatNumber(Math.round(redemptionPayment))} ₽</td>
+                    <td>${formatNumber(redemptionPayment)} ₽</td>
                     <td>-</td>
                 `;
                 paymentScheduleBody.appendChild(redemptionRow);
@@ -1129,191 +1451,157 @@
             }
             
             // Обновление итоговой суммы
-            scheduleTotalPayment.textContent = `${formatNumber(Math.round(totalPayments))} ₽`;
+            scheduleTotalPayment.textContent = `${formatNumber(totalPayments)} ₽`;
         }
         
-        // Сохранение графика в PDF
+        // Сохранение графика в PDF (исправленная версия)
         function saveScheduleToPDF() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            
-            doc.setFontSize(18);
-            doc.text('График платежей по лизингу', 20, 20);
-            
-            doc.setFontSize(12);
-            doc.text(`Стоимость техники: ${priceInput.value} ₽`, 20, 35);
-            doc.text(`Первоначальный взнос: ${advanceValue.textContent} (${advanceRub.textContent})`, 20, 42);
-            doc.text(`Срок договора: ${termValue.textContent} месяцев`, 20, 49);
-            doc.text(`Выкупной платеж: ${redemptionValue.textContent} (${redemptionRub.textContent})`, 20, 56);
-            
-            // Таблица
-            const table = document.getElementById('paymentScheduleTable');
-            const rows = table.rows;
-            const tableData = [];
-            
-            for (let i = 0; i < rows.length; i++) {
-                const row = rows[i];
-                const rowData = [];
-                for (let j = 0; j < row.cells.length; j++) {
-                    rowData.push(row.cells[j].innerText);
+            try {
+                const { jsPDF } = window.jspdf;
+                
+                // Создаем новый документ
+                const doc = new jsPDF('p', 'mm', 'a4');
+                
+                // Заголовок
+                doc.setFontSize(18);
+                doc.text('График платежей по лизингу', 20, 20);
+                
+                // Параметры расчета
+                doc.setFontSize(11);
+                doc.text(`Дата формирования: ${new Date().toLocaleDateString('ru-RU')}`, 20, 30);
+                doc.text(`Стоимость техники: ${priceInput.value} ₽`, 20, 38);
+                doc.text(`Первоначальный взнос: ${advanceValue.textContent} (${advanceRub.textContent})`, 20, 46);
+                doc.text(`Срок договора: ${termValue.textContent} месяцев`, 20, 54);
+                doc.text(`Выкупной платеж: ${redemptionValue.textContent} (${redemptionRub.textContent})`, 20, 62);
+                doc.text(`Ежемесячный платеж: ${monthlyPayment.textContent}`, 20, 70);
+                
+                // Подготавливаем данные для таблицы
+                const table = document.getElementById('paymentScheduleTable');
+                const tableData = [];
+                
+                // Заголовки таблицы
+                tableData.push(['№', 'Дата платежа', 'Сумма платежа', 'Остаток долга']);
+                
+                // Данные таблицы
+                const rows = table.querySelectorAll('tbody tr');
+                rows.forEach(row => {
+                    const cells = row.querySelectorAll('td');
+                    const rowData = [];
+                    cells.forEach(cell => {
+                        rowData.push(cell.textContent.trim());
+                    });
+                    tableData.push(rowData);
+                });
+                
+                // Итоговая строка
+                const footerRow = table.querySelector('tfoot tr');
+                if (footerRow) {
+                    const footerCells = footerRow.querySelectorAll('td');
+                    const footerData = [];
+                    footerCells.forEach(cell => {
+                        footerData.push(cell.textContent.trim());
+                    });
+                    tableData.push(footerData);
                 }
-                tableData.push(rowData);
+                
+                // Генерируем таблицу
+                doc.autoTable({
+                    head: [tableData[0]],
+                    body: tableData.slice(1),
+                    startY: 80,
+                    theme: 'grid',
+                    headStyles: { 
+                        fillColor: [44, 82, 130],
+                        textColor: [255, 255, 255],
+                        fontStyle: 'bold'
+                    },
+                    styles: { 
+                        fontSize: 9,
+                        cellPadding: 3
+                    },
+                    columnStyles: {
+                        0: { cellWidth: 15 },
+                        1: { cellWidth: 40 },
+                        2: { cellWidth: 45 },
+                        3: { cellWidth: 45 }
+                    }
+                });
+                
+                // Сохраняем файл
+                doc.save(`График_платежей_лизинг_${new Date().toISOString().slice(0,10)}.pdf`);
+                
+            } catch (error) {
+                console.error('Ошибка при создании PDF:', error);
+                alert('Не удалось создать PDF файл. Пожалуйста, попробуйте снова.');
             }
-            
-            doc.autoTable({
-                head: [tableData[0]],
-                body: tableData.slice(1),
-                startY: 65,
-                theme: 'grid',
-                headStyles: { fillColor: [44, 82, 130] },
-                styles: { fontSize: 9 },
-                columnStyles: {
-                    0: { cellWidth: 15 },
-                    1: { cellWidth: 40 },
-                    2: { cellWidth: 50 },
-                    3: { cellWidth: 50 }
-                }
-            });
-            
-            doc.save('график-платежей-лизинг.pdf');
         }
         
-        // Обработчики событий для слайдеров
-        priceSlider.addEventListener('input', function() {
-            priceInput.value = formatNumber(this.value);
-            updateEquipmentCost();
-        });
-        
-        priceInput.addEventListener('input', updateEquipmentCost);
-        priceInput.addEventListener('blur', updateEquipmentCost);
-        
-        advanceSlider.addEventListener('input', updateAdvanceValue);
-        termSlider.addEventListener('input', updateTermValue);
-        redemptionSlider.addEventListener('input', updateRedemptionValue);
-        
-        // Обработчики для кнопок управления
-        decreaseAdvanceBtn.addEventListener('click', function() {
-            let value = parseFloat(advanceSlider.value);
-            if (value > 5) {
-                value = Math.max(5, value - 0.1);
-                advanceSlider.value = value.toFixed(1);
-                updateAdvanceValue();
-            }
-        });
-        
-        increaseAdvanceBtn.addEventListener('click', function() {
-            let value = parseFloat(advanceSlider.value);
-            if (value < 50) {
-                value = Math.min(50, value + 0.1);
-                advanceSlider.value = value.toFixed(1);
-                updateAdvanceValue();
-            }
-        });
-        
-        decreaseTermBtn.addEventListener('click', function() {
-            let value = parseInt(termSlider.value);
-            if (value > 6) {
-                value = Math.max(6, value - 1);
-                termSlider.value = value;
-                updateTermValue();
-            }
-        });
-        
-        increaseTermBtn.addEventListener('click', function() {
-            let value = parseInt(termSlider.value);
-            if (value < 60) {
-                value = Math.min(60, value + 1);
-                termSlider.value = value;
-                updateTermValue();
-            }
-        });
-        
-        decreaseRedemptionBtn.addEventListener('click', function() {
-            let value = parseFloat(redemptionSlider.value);
-            if (value > 0) {
-                value = Math.max(0, value - 0.1);
-                redemptionSlider.value = value.toFixed(1);
-                updateRedemptionValue();
-            }
-        });
-        
-        increaseRedemptionBtn.addEventListener('click', function() {
-            let value = parseFloat(redemptionSlider.value);
-            if (value < 15) {
-                value = Math.min(15, value + 0.1);
-                redemptionSlider.value = value.toFixed(1);
-                updateRedemptionValue();
-            }
-        });
-        
-        // Обработчики модального окна графика платежей
-        openScheduleBtn.addEventListener('click', function() {
+        // Управление модальными окнами
+        function openScheduleModal() {
             generatePaymentSchedule();
             scheduleModal.style.display = 'flex';
-        });
+        }
         
-        closeScheduleModal.addEventListener('click', function() {
+        function closeScheduleModal() {
             scheduleModal.style.display = 'none';
-        });
+        }
         
-        scheduleModal.addEventListener('click', function(e) {
-            if (e.target === scheduleModal) {
-                scheduleModal.style.display = 'none';
-            }
-        });
-        
-        saveScheduleBtn.addEventListener('click', saveScheduleToPDF);
-        
-        // Обработчики модального окна телефона
-        showPhoneBtn.addEventListener('click', function() {
+        function showPhoneModal() {
             phoneModal.style.display = 'flex';
-        });
+        }
         
-        closePhoneModal.addEventListener('click', function() {
+        function closePhoneModal() {
             phoneModal.style.display = 'none';
-            copySuccess.style.display = 'none';
-        });
+            document.getElementById('copySuccess').style.display = 'none';
+        }
         
-        phoneModal.addEventListener('click', function(e) {
-            if (e.target === phoneModal) {
-                phoneModal.style.display = 'none';
-                copySuccess.style.display = 'none';
-            }
-        });
-        
-        copyPhoneBtn.addEventListener('click', function() {
+        function copyPhoneNumber() {
             const phoneNumber = '+79990387395';
             navigator.clipboard.writeText(phoneNumber).then(function() {
-                copySuccess.style.display = 'block';
+                document.getElementById('copySuccess').style.display = 'block';
                 setTimeout(function() {
-                    copySuccess.style.display = 'none';
+                    document.getElementById('copySuccess').style.display = 'none';
                 }, 2000);
+            }).catch(function(err) {
+                console.error('Ошибка копирования:', err);
             });
-        });
+        }
         
         // Обработчики формы
-        document.getElementById('sendTelegramBtn').addEventListener('click', function() {
-            const phone = document.getElementById('clientPhone').value;
-            const name = document.getElementById('clientName').value;
-            const email = document.getElementById('clientEmail').value;
+        function sendTelegram() {
+            const phone = document.getElementById('clientPhone').value.trim();
+            const name = document.getElementById('clientName').value.trim();
+            const email = document.getElementById('clientEmail').value.trim();
+            const privacyChecked = document.getElementById('privacyPolicy').checked;
             
             if (!phone) {
                 alert('Пожалуйста, укажите номер телефона');
                 return;
             }
             
+            if (!privacyChecked) {
+                alert('Пожалуйста, согласитесь с политикой конфиденциальности');
+                return;
+            }
+            
             const message = `Новая заявка с калькулятора:%0A%0AИмя: ${name || 'Не указано'}%0AТелефон: ${phone}%0AEmail: ${email || 'Не указано'}%0A%0AПараметры лизинга:%0AСтоимость: ${priceInput.value} ₽%0AВзнос: ${advanceValue.textContent}%0AСрок: ${termValue.textContent} мес.%0AВыкуп: ${redemptionValue.textContent}%0A%0AЕжемесячный платеж: ${monthlyPayment.textContent}`;
             
             window.open(`https://t.me/YWeliQ?text=${message}`, '_blank');
-        });
+        }
         
-        document.getElementById('sendEmailBtn').addEventListener('click', function() {
-            const phone = document.getElementById('clientPhone').value;
-            const name = document.getElementById('clientName').value;
-            const email = document.getElementById('clientEmail').value;
+        function sendEmail() {
+            const phone = document.getElementById('clientPhone').value.trim();
+            const name = document.getElementById('clientName').value.trim();
+            const email = document.getElementById('clientEmail').value.trim();
+            const privacyChecked = document.getElementById('privacyPolicy').checked;
             
             if (!phone) {
                 alert('Пожалуйста, укажите номер телефона');
+                return;
+            }
+            
+            if (!privacyChecked) {
+                alert('Пожалуйста, согласитесь с политикой конфиденциальности');
                 return;
             }
             
@@ -1321,46 +1609,91 @@
             const body = `Новая заявка с калькулятора:\n\nИмя: ${name || 'Не указано'}\nТелефон: ${phone}\nEmail: ${email || 'Не указано'}\n\nПараметры лизинга:\nСтоимость: ${priceInput.value} ₽\nВзнос: ${advanceValue.textContent}\nСрок: ${termValue.textContent} мес.\nВыкуп: ${redemptionValue.textContent}\n\nЕжемесячный платеж: ${monthlyPayment.textContent}`;
             
             window.location.href = `mailto:yweliq@yandex.ru?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-        });
+        }
         
-        // Маска для телефона (скрываем скобки)
-        document.getElementById('clientPhone').addEventListener('input', function(e) {
-            let value = e.target.value.replace(/\D/g, '');
+        // Маска для телефона
+        function setupPhoneMask() {
+            const phoneInput = document.getElementById('clientPhone');
             
-            if (value.startsWith('7') || value.startsWith('8')) {
-                value = value.substring(1);
-            }
-            
-            if (value.length > 0) {
-                let formatted = '+7 ';
+            phoneInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, '');
+                
+                if (value.startsWith('7') || value.startsWith('8')) {
+                    value = value.substring(1);
+                }
                 
                 if (value.length > 0) {
-                    formatted += value.substring(0, 3);
+                    let formatted = '+7 ';
+                    
+                    if (value.length > 0) {
+                        formatted += value.substring(0, 3);
+                    }
+                    if (value.length > 3) {
+                        formatted += ' ' + value.substring(3, 6);
+                    }
+                    if (value.length > 6) {
+                        formatted += ' ' + value.substring(6, 8);
+                    }
+                    if (value.length > 8) {
+                        formatted += ' ' + value.substring(8, 10);
+                    }
+                    
+                    e.target.value = formatted;
+                } else {
+                    e.target.value = '';
                 }
-                if (value.length > 3) {
-                    formatted += ' ' + value.substring(3, 6);
-                }
-                if (value.length > 6) {
-                    formatted += ' ' + value.substring(6, 8);
-                }
-                if (value.length > 8) {
-                    formatted += ' ' + value.substring(8, 10);
-                }
-                
-                e.target.value = formatted;
-            } else {
-                e.target.value = '';
-            }
-        });
+            });
+        }
+        
+        // Логирование кликов (для аналитики)
+        function logClick(action) {
+            console.log(`Клик: ${action} - ${new Date().toISOString()}`);
+        }
         
         // Инициализация
-        document.addEventListener('DOMContentLoaded', function() {
+        function init() {
+            // Настройка обработчиков
+            priceSlider.addEventListener('input', function() {
+                priceInput.value = formatNumber(this.value);
+                updateEquipmentCost();
+            });
+            
+            priceInput.addEventListener('input', updateEquipmentCost);
+            priceInput.addEventListener('blur', updateEquipmentCost);
+            
+            advanceSlider.addEventListener('input', updateAdvanceValue);
+            termSlider.addEventListener('input', updateTermValue);
+            redemptionSlider.addEventListener('input', updateRedemptionValue);
+            
+            // Закрытие модальных окон по клику на фон
+            scheduleModal.addEventListener('click', function(e) {
+                if (e.target === scheduleModal) {
+                    closeScheduleModal();
+                }
+            });
+            
+            phoneModal.addEventListener('click', function(e) {
+                if (e.target === phoneModal) {
+                    closePhoneModal();
+                }
+            });
+            
+            // Настройка маски телефона
+            setupPhoneMask();
+            
+            // Первоначальный расчет
             updateEquipmentCost();
             updateAdvanceValue();
             updateTermValue();
             updateRedemptionValue();
             calculateLeasing();
-        });
+            
+            console.log('Калькулятор инициализирован');
+        }
+        
+        // Запуск инициализации при загрузке
+        document.addEventListener('DOMContentLoaded', init);
+        
     </script>
 </body>
 </html>
