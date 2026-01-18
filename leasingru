@@ -437,7 +437,7 @@
                 
                 <div class="input-group">
                     <div class="input-header">
-                        <label for="advanceSlider">Первоначальный взнос</label>
+                        <label for="advanceSlider"> Аванс </label>
                         <div class="value-container">
                             <span class="value" id="advanceValue">20%</span>
                             <span class="value-rub" id="advanceRub">300 000 ₽</span>
@@ -928,7 +928,7 @@
                 </div>
                 
                 <div style="margin-top: 20px; padding: 15px; background: #f8fafc; border-radius: 10px; font-size: 0.9rem; color: #4a5568;">
-                    <strong>Внимание:</strong> Итоговая сумма включает все платежи по договору лизинга, включая первоначальный взнос и выкупной платеж.
+                    <strong>Внимание:</strong> Итоговая сумма включает все платежи по договору лизинга, включая аванс и выкупной платеж.
                 </div>`;
             
             paymentScheduleContent.innerHTML = html;
@@ -959,7 +959,7 @@
             let yPos = 55;
             doc.text(`• Стоимость авто: ${formatCurrency(currentCalculation.carPrice)}`, 25, yPos);
             yPos += 7;
-            doc.text(`• Первоначальный взнос: ${currentCalculation.advancePercent.toFixed(2)}% (${formatCurrency(currentCalculation.advanceAmount)})`, 25, yPos);
+            doc.text(`• Аванс: ${currentCalculation.advancePercent.toFixed(2)}% (${formatCurrency(currentCalculation.advanceAmount)})`, 25, yPos);
             yPos += 7;
             doc.text(`• Срок договора: ${currentCalculation.termMonths} мес.`, 25, yPos);
             yPos += 7;
@@ -1016,7 +1016,7 @@
                     if (finalY < 280) {
                         doc.setFontSize(9);
                         doc.setFontStyle('italic');
-                        doc.text('Примечание: Итоговая сумма включает все платежи по договору лизинга, включая первоначальный взнос и выкупной платеж.', 20, finalY, { maxWidth: 170 });
+                        doc.text('Примечание: Итоговая сумма включает все платежи по договору лизинга, включая аванс и выкупной платеж.', 20, finalY, { maxWidth: 170 });
                     }
                 }
             });
@@ -1048,7 +1048,7 @@
             let y = 55;
             const params = [
                 `Стоимость авто: ${formatCurrency(currentCalculation.carPrice)}`,
-                `Первоначальный взнос: ${currentCalculation.advancePercent.toFixed(2)}% (${formatCurrency(currentCalculation.advanceAmount)})`,
+                `Аванс: ${currentCalculation.advancePercent.toFixed(2)}% (${formatCurrency(currentCalculation.advanceAmount)})`,
                 `Срок договора: ${currentCalculation.termMonths} мес.`,
                 `Выкупной платеж: ${currentCalculation.redemptionPercent.toFixed(2)}% (${formatCurrency(currentCalculation.redemptionAmount)})`,
                 `Ежемесячный платеж: ${formatCurrency(currentCalculation.monthlyPayment)}`,
@@ -1103,7 +1103,7 @@
             doc.setFontSize(9);
             doc.text("Примечание: Итоговая сумма включает все платежи по договору лизинга,", 20, y);
             y += 5;
-            doc.text("включая первоначальный взнос и выкупной платеж.", 20, y);
+            doc.text("включая Аванс и выкупной платеж.", 20, y);
             
             // Сохранение
             doc.save(`график_платежей_лизинг_${new Date().toISOString().split('T')[0]}.pdf`);
@@ -1263,7 +1263,7 @@
 
 💼 *Параметры расчета:*
 • Стоимость авто: ${formatCurrency(currentCalculation.carPrice)}
-• Первоначальный взнос: ${currentCalculation.advancePercent.toFixed(2)}% (${formatCurrency(currentCalculation.advanceAmount)})
+• Аванс: ${currentCalculation.advancePercent.toFixed(2)}% (${formatCurrency(currentCalculation.advanceAmount)})
 • Срок договора: ${currentCalculation.termMonths} мес.
 • Выкупной платеж: ${currentCalculation.redemptionPercent.toFixed(2)}% (${formatCurrency(currentCalculation.redemptionAmount)})
 
