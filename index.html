@@ -1030,7 +1030,7 @@
                 
                 <div class="result-box result-main">
                     <div class="result-label">Ежемесячный платеж</div>
-                    <div class="result-value" id="monthlyPayment">70 756 ₽</div>
+                    <div class="result-value" id="monthlyPayment">84 227 ₽</div>
                 </div>
                 
                 <div class="result-box">
@@ -1052,7 +1052,7 @@
                 <div class="result-footer">
                     <div class="total-contract">
                         <div class="total-label">Общая стоимость договора</div>
-                        <div class="total-value" id="totalAmount">3 468 219 ₽</div>
+                        <div class="total-value" id="totalAmount">3 951 184 ₽</div>
                     </div>
                 </div>
                 
@@ -1162,83 +1162,6 @@
 
     <script>
         // ============================================
-        // ЗАЩИТА КОДА
-        // ============================================
-        
-        // Блокировка контекстного меню
-        document.addEventListener('contextmenu', function(e) {
-            e.preventDefault();
-            return false;
-        });
-        
-        // Блокировка клавиш для DevTools
-        document.addEventListener('keydown', function(e) {
-            // F12
-            if (e.keyCode === 123) {
-                e.preventDefault();
-                return false;
-            }
-            // Ctrl+Shift+I
-            if (e.ctrlKey && e.shiftKey && e.keyCode === 73) {
-                e.preventDefault();
-                return false;
-            }
-            // Ctrl+Shift+J
-            if (e.ctrlKey && e.shiftKey && e.keyCode === 74) {
-                e.preventDefault();
-                return false;
-            }
-            // Ctrl+U
-            if (e.ctrlKey && e.keyCode === 85) {
-                e.preventDefault();
-                return false;
-            }
-            // Ctrl+S
-            if (e.ctrlKey && e.keyCode === 83) {
-                e.preventDefault();
-                return false;
-            }
-            // Ctrl+C, Ctrl+V разрешены, но логируем
-            if (e.ctrlKey && (e.keyCode === 67 || e.keyCode === 86)) {
-                // Разрешаем, но логируем
-                console.log('Копирование/вставка зафиксированы');
-            }
-        });
-        
-        // Защита от копирования через выделение
-        document.addEventListener('selectstart', function(e) {
-            if (!e.target.matches('input, textarea, .phone-number-display')) {
-                e.preventDefault();
-            }
-        });
-        
-        // Защита от драг-н-дроп
-        document.addEventListener('dragstart', function(e) {
-            if (!e.target.matches('input, textarea')) {
-                e.preventDefault();
-            }
-        });
-        
-        // Детектирование открытия DevTools
-        let devToolsOpen = false;
-        const threshold = 160;
-        
-        function checkDevTools() {
-            const widthThreshold = window.outerWidth - window.innerWidth > threshold;
-            const heightThreshold = window.outerHeight - window.innerHeight > threshold;
-            
-            if (widthThreshold || heightThreshold) {
-                if (!devToolsOpen) {
-                    devToolsOpen = true;
-                    document.body.innerHTML = '<div style="padding: 50px; text-align: center; font-size: 24px; color: red;">Инструменты разработчика заблокированы. Пожалуйста, закройте DevTools.</div>';
-                    throw new Error('DevTools detected');
-                }
-            }
-        }
-        
-        setInterval(checkDevTools, 1000);
-        
-        // ============================================
         // ОСНОВНОЙ КОД КАЛЬКУЛЯТОРА
         // ============================================
         
@@ -1247,7 +1170,8 @@
         let advancePercent = 20.0;
         let termMonths = 36;
         let redemptionPercent = 10.0;
-        const markupPercent = 4; // Увеличена наценка до 4%
+        const baseRate = 17; // Базовая ставка 17%
+        const markupPercent = 5; // Наценка 5%
         
         // Элементы DOM
         const priceInput = document.getElementById('priceInput');
@@ -1372,7 +1296,7 @@
             calculateLeasing();
         }
         
-        // Расчет лизинга с увеличенной наценкой 4%
+        // Расчет лизинга с базовой ставкой 17% и наценкой 5%
         function calculateLeasing() {
             const advancePercentValue = parseFloat(advanceSlider.value);
             const termValue = parseInt(termSlider.value);
@@ -1403,8 +1327,8 @@
                 return;
             }
             
-            // Процентная ставка 10% годовых + наценка 4%
-            const annualRate = 10 + markupPercent; // 14% годовых
+            // Процентная ставка 17% годовых + наценка 5%
+            const annualRate = baseRate + markupPercent; // 22% годовых
             const monthlyRate = annualRate / 12 / 100;
             
             // Расчет аннуитетного платежа
@@ -1466,7 +1390,7 @@
             // Если сумма лизинга больше 0, добавляем ежемесячные платежи
             if (leasingAmount > 0) {
                 // Процентная ставка с наценкой
-                const annualRate = 10 + markupPercent;
+                const annualRate = baseRate + markupPercent;
                 const monthlyRate = annualRate / 12 / 100;
                 
                 // Аннуитетный платеж
