@@ -399,6 +399,17 @@
             user-select: text;
         }
         
+        /* Поле ИНН */
+        .inn-input {
+            width: 100%;
+            padding: 10px 12px !important;
+            border: 1px solid #cbd5e0;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            cursor: text;
+            user-select: text;
+        }
+        
         /* Скрываем скобки в номере телефона */
         .phone-input::placeholder {
             color: #a0aec0;
@@ -776,11 +787,11 @@
             gap: 6px;
             font-size: 0.85rem;
         }
-        .modal-save-print-btn {
+        .modal-print-save-btn {
             background: #2c5282;
             color: white;
         }
-        .modal-save-print-btn:hover {
+        .modal-print-save-btn:hover {
             background: #1a3a5f;
         }
         
@@ -890,6 +901,31 @@
         /* Скрытые стили для защиты */
         .hidden-protection {
             display: none;
+        }
+        
+        /* Стили для кнопок в модальном окне */
+        .print-save-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+        
+        .print-btn {
+            background: #e67e22;
+            color: white;
+        }
+        
+        .print-btn:hover {
+            background: #d35400;
+        }
+        
+        .save-btn {
+            background: #38a169;
+            color: white;
+        }
+        
+        .save-btn:hover {
+            background: #2f855a;
         }
     </style>
 </head>
@@ -1057,8 +1093,8 @@
                     </div>
                     
                     <div class="form-group">
-                        <label for="clientEmail">Email <span class="form-optional">(необязательно)</span></label>
-                        <input type="email" id="clientEmail" placeholder="email@example.com">
+                        <label for="clientInn">ИНН компании <span class="form-optional">(необязательно)</span></label>
+                        <input type="text" id="clientInn" class="inn-input" placeholder="10 или 12 цифр" maxlength="12">
                     </div>
                     
                     <div class="checkbox-group">
@@ -1098,9 +1134,12 @@
                 <button class="close-modal" id="closeScheduleModal" onclick="closeScheduleModal()">×</button>
             </div>
             
-            <div class="modal-actions">
-                <button class="modal-action-btn modal-save-print-btn" id="saveScheduleBtn" onclick="saveScheduleToPDF()">
-                    <i class="fas fa-download"></i> Сохранить PDF
+            <div class="modal-actions print-save-buttons">
+                <button class="modal-action-btn print-btn" id="printScheduleBtn" onclick="printSchedule()">
+                    <i class="fas fa-print"></i> Распечатать
+                </button>
+                <button class="modal-action-btn save-btn" id="saveScheduleBtn" onclick="saveScheduleToPDF()">
+                    <i class="fas fa-download"></i> Сохранить
                 </button>
             </div>
             
@@ -1374,7 +1413,7 @@
             totalAmount.textContent = `${formatNumber(totalContractValue)} ₽`;
         }
         
-        // Генерация графика платежей (аванс первый, выкупной последний)
+        // Генерация графика платежей (аванс первый с названием "Аванс", выкупной последний с названием "Выкупной платеж")
         function generatePaymentSchedule() {
             const advancePercentValue = parseFloat(advanceSlider.value);
             const termValue = parseInt(termSlider.value);
@@ -1398,11 +1437,11 @@
             // Очистка таблицы
             paymentScheduleBody.innerHTML = '';
             
-            // Добавление авансового платежа (ПЕРВЫЙ)
+            // Добавление авансового платежа (ПЕРВЫЙ - с названием "Аванс")
             const advanceRow = document.createElement('tr');
             advanceRow.className = 'advance-row';
             advanceRow.innerHTML = `
-                <td class="payment-number">1</td>
+                <td class="payment-number">Аванс</td>
                 <td>${today.toLocaleDateString('ru-RU')}</td>
                 <td>${formatNumber(advancePayment)} ₽</td>
                 <td>${formatNumber(remainingDebt)} ₽</td>
@@ -1410,7 +1449,7 @@
             paymentScheduleBody.appendChild(advanceRow);
             totalPayments += advancePayment;
             
-            // Добавление ежемесячных платежей
+            // Добавление ежемесячных платежей (номера 2, 3, 4...)
             for (let i = 1; i <= termValue; i++) {
                 const interest = remainingDebt * monthlyRate;
                 const principal = monthlyPaymentValue - interest;
@@ -1433,7 +1472,7 @@
                 totalPayments += monthlyPaymentValue;
             }
             
-            // Добавление выкупного платежа (ПОСЛЕДНИЙ)
+            // Добавление выкупного платежа (ПОСЛЕДНИЙ - с названием "Выкупной платеж")
             if (redemptionPayment > 0) {
                 const redemptionDate = new Date(today);
                 redemptionDate.setMonth(redemptionDate.getMonth() + termValue + 1);
@@ -1441,7 +1480,7 @@
                 const redemptionRow = document.createElement('tr');
                 redemptionRow.className = 'redemption-row';
                 redemptionRow.innerHTML = `
-                    <td class="payment-number">${termValue + 2}</td>
+                    <td class="payment-number">Выкупной<br>платеж</td>
                     <td>${redemptionDate.toLocaleDateString('ru-RU')}</td>
                     <td>${formatNumber(redemptionPayment)} ₽</td>
                     <td>-</td>
@@ -1454,7 +1493,109 @@
             scheduleTotalPayment.textContent = `${formatNumber(totalPayments)} ₽`;
         }
         
-        // Сохранение графика в PDF (исправленная версия)
+        // Функция печати графика платежей
+        function printSchedule() {
+            // Создаем временное окно для печати
+            const printWindow = window.open('', '_blank', 'width=800,height=600');
+            
+            // Получаем данные для печати
+            const equipmentCostFormatted = priceInput.value;
+            const advanceFormatted = `${advanceValue.textContent} (${advanceRub.textContent})`;
+            const termFormatted = `${termValue.textContent} месяцев`;
+            const redemptionFormatted = `${redemptionValue.textContent} (${redemptionRub.textContent})`;
+            const monthlyPaymentFormatted = monthlyPayment.textContent;
+            const totalAmountFormatted = totalAmount.textContent;
+            
+            // Получаем HTML таблицы
+            const tableHTML = document.getElementById('paymentScheduleTable').outerHTML;
+            
+            // Создаем HTML для печати
+            const printHTML = `
+                <!DOCTYPE html>
+                <html lang="ru">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>График платежей по лизингу</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; padding: 20px; }
+                        h1 { color: #1a3a5f; text-align: center; margin-bottom: 30px; }
+                        .info-section { margin-bottom: 20px; }
+                        .info-row { display: flex; margin-bottom: 8px; }
+                        .info-label { font-weight: bold; width: 250px; }
+                        .print-date { text-align: right; font-size: 12px; color: #666; margin-bottom: 20px; }
+                        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                        th { background-color: #f2f2f2; padding: 10px; text-align: left; border: 1px solid #ddd; font-weight: bold; }
+                        td { padding: 10px; border: 1px solid #ddd; }
+                        .advance-row { background-color: #f0fff4; }
+                        .redemption-row { background-color: #fffaf0; }
+                        .total-row { background-color: #f0f7ff; font-weight: bold; }
+                        @media print {
+                            body { padding: 0; }
+                            .no-print { display: none; }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <h1>График платежей по лизингу</h1>
+                    
+                    <div class="print-date">
+                        Дата формирования: ${new Date().toLocaleDateString('ru-RU')}
+                    </div>
+                    
+                    <div class="info-section">
+                        <div class="info-row">
+                            <div class="info-label">Стоимость техники:</div>
+                            <div>${equipmentCostFormatted} ₽</div>
+                        </div>
+                        <div class="info-row">
+                            <div class="info-label">Первоначальный взнос:</div>
+                            <div>${advanceFormatted}</div>
+                        </div>
+                        <div class="info-row">
+                            <div class="info-label">Срок договора:</div>
+                            <div>${termFormatted}</div>
+                        </div>
+                        <div class="info-row">
+                            <div class="info-label">Выкупной платеж:</div>
+                            <div>${redemptionFormatted}</div>
+                        </div>
+                        <div class="info-row">
+                            <div class="info-label">Ежемесячный платеж:</div>
+                            <div>${monthlyPaymentFormatted}</div>
+                        </div>
+                        <div class="info-row">
+                            <div class="info-label">Общая стоимость договора:</div>
+                            <div>${totalAmountFormatted}</div>
+                        </div>
+                    </div>
+                    
+                    ${tableHTML}
+                    
+                    <div style="margin-top: 30px; font-size: 12px; color: #666;">
+                        <p>*Все расчеты являются предварительными. Точные условия будут рассчитаны после консультации с менеджером.</p>
+                    </div>
+                    
+                    <div class="no-print" style="margin-top: 30px; text-align: center;">
+                        <button onclick="window.print()" style="padding: 10px 20px; background: #2c5282; color: white; border: none; border-radius: 5px; cursor: pointer;">Распечатать</button>
+                        <button onclick="window.close()" style="padding: 10px 20px; background: #718096; color: white; border: none; border-radius: 5px; cursor: pointer; margin-left: 10px;">Закрыть</button>
+                    </div>
+                </body>
+                </html>
+            `;
+            
+            printWindow.document.write(printHTML);
+            printWindow.document.close();
+            
+            // Даем время на загрузку контента
+            setTimeout(() => {
+                printWindow.focus();
+                // Автоматически открываем окно печати
+                printWindow.print();
+            }, 500);
+        }
+        
+        // Сохранение графика в PDF
         function saveScheduleToPDF() {
             try {
                 const { jsPDF } = window.jspdf;
@@ -1466,14 +1607,18 @@
                 doc.setFontSize(18);
                 doc.text('График платежей по лизингу', 20, 20);
                 
+                // Дата формирования
+                doc.setFontSize(10);
+                doc.text(`Дата формирования: ${new Date().toLocaleDateString('ru-RU')}`, 20, 30);
+                
                 // Параметры расчета
                 doc.setFontSize(11);
-                doc.text(`Дата формирования: ${new Date().toLocaleDateString('ru-RU')}`, 20, 30);
-                doc.text(`Стоимость техники: ${priceInput.value} ₽`, 20, 38);
-                doc.text(`Первоначальный взнос: ${advanceValue.textContent} (${advanceRub.textContent})`, 20, 46);
-                doc.text(`Срок договора: ${termValue.textContent} месяцев`, 20, 54);
-                doc.text(`Выкупной платеж: ${redemptionValue.textContent} (${redemptionRub.textContent})`, 20, 62);
-                doc.text(`Ежемесячный платеж: ${monthlyPayment.textContent}`, 20, 70);
+                doc.text(`Стоимость техники: ${priceInput.value} ₽`, 20, 40);
+                doc.text(`Первоначальный взнос: ${advanceValue.textContent} (${advanceRub.textContent})`, 20, 48);
+                doc.text(`Срок договора: ${termValue.textContent} месяцев`, 20, 56);
+                doc.text(`Выкупной платеж: ${redemptionValue.textContent} (${redemptionRub.textContent})`, 20, 64);
+                doc.text(`Ежемесячный платеж: ${monthlyPayment.textContent}`, 20, 72);
+                doc.text(`Общая стоимость договора: ${totalAmount.textContent}`, 20, 80);
                 
                 // Подготавливаем данные для таблицы
                 const table = document.getElementById('paymentScheduleTable');
@@ -1508,7 +1653,7 @@
                 doc.autoTable({
                     head: [tableData[0]],
                     body: tableData.slice(1),
-                    startY: 80,
+                    startY: 90,
                     theme: 'grid',
                     headStyles: { 
                         fillColor: [44, 82, 130],
@@ -1520,12 +1665,17 @@
                         cellPadding: 3
                     },
                     columnStyles: {
-                        0: { cellWidth: 15 },
+                        0: { cellWidth: 20 },
                         1: { cellWidth: 40 },
                         2: { cellWidth: 45 },
                         3: { cellWidth: 45 }
                     }
                 });
+                
+                // Примечание
+                const finalY = doc.lastAutoTable.finalY || 90;
+                doc.setFontSize(9);
+                doc.text('*Все расчеты являются предварительными. Точные условия будут рассчитаны после консультации с менеджером.', 20, finalY + 10);
                 
                 // Сохраняем файл
                 doc.save(`График_платежей_лизинг_${new Date().toISOString().slice(0,10)}.pdf`);
@@ -1571,7 +1721,7 @@
         function sendTelegram() {
             const phone = document.getElementById('clientPhone').value.trim();
             const name = document.getElementById('clientName').value.trim();
-            const email = document.getElementById('clientEmail').value.trim();
+            const inn = document.getElementById('clientInn').value.trim();
             const privacyChecked = document.getElementById('privacyPolicy').checked;
             
             if (!phone) {
@@ -1584,7 +1734,7 @@
                 return;
             }
             
-            const message = `Новая заявка с калькулятора:%0A%0AИмя: ${name || 'Не указано'}%0AТелефон: ${phone}%0AEmail: ${email || 'Не указано'}%0A%0AПараметры лизинга:%0AСтоимость: ${priceInput.value} ₽%0AВзнос: ${advanceValue.textContent}%0AСрок: ${termValue.textContent} мес.%0AВыкуп: ${redemptionValue.textContent}%0A%0AЕжемесячный платеж: ${monthlyPayment.textContent}`;
+            const message = `Новая заявка с калькулятора:%0A%0AИмя: ${name || 'Не указано'}%0AТелефон: ${phone}%0AИНН: ${inn || 'Не указано'}%0A%0AПараметры лизинга:%0AСтоимость: ${priceInput.value} ₽%0AВзнос: ${advanceValue.textContent}%0AСрок: ${termValue.textContent} мес.%0AВыкуп: ${redemptionValue.textContent}%0A%0AЕжемесячный платеж: ${monthlyPayment.textContent}`;
             
             window.open(`https://t.me/YWeliQ?text=${message}`, '_blank');
         }
@@ -1592,7 +1742,7 @@
         function sendEmail() {
             const phone = document.getElementById('clientPhone').value.trim();
             const name = document.getElementById('clientName').value.trim();
-            const email = document.getElementById('clientEmail').value.trim();
+            const inn = document.getElementById('clientInn').value.trim();
             const privacyChecked = document.getElementById('privacyPolicy').checked;
             
             if (!phone) {
@@ -1606,7 +1756,7 @@
             }
             
             const subject = 'Заявка с лизингового калькулятора';
-            const body = `Новая заявка с калькулятора:\n\nИмя: ${name || 'Не указано'}\nТелефон: ${phone}\nEmail: ${email || 'Не указано'}\n\nПараметры лизинга:\nСтоимость: ${priceInput.value} ₽\nВзнос: ${advanceValue.textContent}\nСрок: ${termValue.textContent} мес.\nВыкуп: ${redemptionValue.textContent}\n\nЕжемесячный платеж: ${monthlyPayment.textContent}`;
+            const body = `Новая заявка с калькулятора:\n\nИмя: ${name || 'Не указано'}\nТелефон: ${phone}\nИНН: ${inn || 'Не указано'}\n\nПараметры лизинга:\nСтоимость: ${priceInput.value} ₽\nВзнос: ${advanceValue.textContent}\nСрок: ${termValue.textContent} мес.\nВыкуп: ${redemptionValue.textContent}\n\nЕжемесячный платеж: ${monthlyPayment.textContent}`;
             
             window.location.href = `mailto:yweliq@yandex.ru?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
         }
@@ -1645,6 +1795,22 @@
             });
         }
         
+        // Валидация ИНН
+        function setupInnValidation() {
+            const innInput = document.getElementById('clientInn');
+            
+            innInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, '');
+                
+                // Ограничиваем длину ИНН (10 или 12 цифр)
+                if (value.length > 12) {
+                    value = value.substring(0, 12);
+                }
+                
+                e.target.value = value;
+            });
+        }
+        
         // Логирование кликов (для аналитики)
         function logClick(action) {
             console.log(`Клик: ${action} - ${new Date().toISOString()}`);
@@ -1678,8 +1844,9 @@
                 }
             });
             
-            // Настройка маски телефона
+            // Настройка масок
             setupPhoneMask();
+            setupInnValidation();
             
             // Первоначальный расчет
             updateEquipmentCost();
