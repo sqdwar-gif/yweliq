@@ -1164,6 +1164,104 @@
 
     <script>
         // ============================================
+        // УМНАЯ ЗАЩИТА ОТ КОПИРОВАНИЯ (только для десктопов)
+        // ============================================
+
+        function setupSmartProtection() {
+            // Проверяем, мобильное ли устройство
+            const isMobile = /iPhone|iPad|iPod|Android|webOS|BlackBerry|Windows Phone/i.test(navigator.userAgent);
+            
+            if (isMobile) {
+                console.log('Мобильное устройство - защита отключена');
+                return; // На мобильных защиту не включаем
+            }
+            
+            console.log('Десктоп - защита активирована');
+            
+            // 1. Защита от открытия DevTools (только F12)
+            document.addEventListener('keydown', function(e) {
+                // Только F12 блокируем
+                if (e.key === 'F12' || e.keyCode === 123) {
+                    e.preventDefault();
+                    // Без alert, просто блокируем
+                    console.log('F12 заблокирован');
+                    return false;
+                }
+            });
+            
+            // 2. Защита от контекстного меню (правой кнопки мыши) - мягкая
+            document.addEventListener('contextmenu', function(e) {
+                // Всегда разрешаем контекстное меню для:
+                if (e.target.closest('.phone-number-display') || 
+                    e.target.closest('.money-input') || 
+                    e.target.closest('.phone-input') || 
+                    e.target.closest('.inn-input') ||
+                    e.target.closest('#clientName') ||
+                    e.target.tagName === 'INPUT' ||
+                    e.target.tagName === 'TEXTAREA') {
+                    return true; // Разрешаем
+                }
+                
+                // Для остальных элементов можно показать предупреждение один раз
+                if (!localStorage.getItem('contextMenuWarned')) {
+                    // e.preventDefault();
+                    // Можно показать сообщение, но не блокировать
+                    console.log('Контекстное меню не рекомендуется');
+                    localStorage.setItem('contextMenuWarned', 'true');
+                }
+                return true; // Всегда разрешаем, но логируем
+            });
+            
+            // 3. Защита от копирования (Ctrl+C) - мягкая
+            document.addEventListener('copy', function(e) {
+                // Всегда разрешаем копирование из полей ввода
+                if (e.target.closest('.phone-number-display') || 
+                    e.target.closest('.money-input') || 
+                    e.target.closest('.phone-input') || 
+                    e.target.closest('.inn-input') ||
+                    e.target.closest('#clientName') ||
+                    e.target.tagName === 'INPUT' ||
+                    e.target.tagName === 'TEXTAREA') {
+                    return true;
+                }
+                
+                // Для остального контента - разрешаем, но логируем
+                const selection = window.getSelection().toString();
+                if (selection.length > 50) {
+                    console.log('Попытка копирования контента:', selection.substring(0, 100) + '...');
+                    // Можно отправить в аналитику
+                }
+                return true; // Всегда разрешаем копирование
+            });
+            
+            // 4. Обнаружение DevTools (только для информации)
+            let devToolsOpened = false;
+            
+            function checkDevTools() {
+                const widthThreshold = window.outerWidth - window.innerWidth > 100;
+                const heightThreshold = window.outerHeight - window.innerHeight > 100;
+                
+                if ((widthThreshold || heightThreshold) && !devToolsOpened) {
+                    devToolsOpened = true;
+                    console.log('DevTools обнаружены (информационно)');
+                    // Только логируем, не блокируем
+                }
+            }
+            
+            // Проверяем реже (раз в 2 секунды)
+            setInterval(checkDevTools, 2000);
+            
+            // 5. Защита от drag-and-drop (только для изображений)
+            document.addEventListener('dragstart', function(e) {
+                if (e.target.tagName === 'IMG') {
+                    e.preventDefault();
+                    return false;
+                }
+                return true;
+            });
+        }
+
+        // ============================================
         // ОСНОВНОЙ КОД КАЛЬКУЛЯТОРА
         // ============================================
         
@@ -1338,8 +1436,8 @@
                 return;
             }
             
-            // Процентная ставка 17% годовых + наценка 4.5%
-            const annualRate = baseRate + markupPercent; // 21.5% годовых
+            // Процентная ставка 17% годовых + наценка 14%
+            const annualRate = baseRate + markupPercent; // 31% годовых
             const monthlyRate = annualRate / 12 / 100;
             
             // Расчет аннуитетного платежа
@@ -1365,116 +1463,116 @@
         }
         
         // Генерация графика платежей с НДС и налогом на прибыль для каждого платежа
-function generatePaymentSchedule() {
-    const advancePercentValue = parseFloat(advanceSlider.value);
-    const termValue = parseInt(termSlider.value);
-    const redemptionPercentValue = parseFloat(redemptionSlider.value);
-    
-    const advancePayment = equipmentCost * advancePercentValue / 100;
-    const redemptionPayment = equipmentCost * redemptionPercentValue / 100;
-    const leasingAmount = equipmentCost - advancePayment;
-    
-    // Очистка таблицы
-    paymentScheduleBody.innerHTML = '';
-    
-    let totalPayments = 0;
-    let totalVAT = 0;
-    let totalProfitTax = 0;
-    const today = new Date();
-    
-    // Если стоимость техники 0
-    if (equipmentCost === 0) {
-        scheduleTotalPayment.textContent = '0 ₽';
-        scheduleTotalVAT.textContent = '0 ₽';
-        scheduleTotalProfitTax.textContent = '0 ₽';
-        return;
-    }
-    
-    // Добавление авансового платежа (ПЕРВЫЙ - с названием "Аванс")
-    if (advancePayment > 0) {
-        const advanceVAT = Math.round(advancePayment * 0.22 / 1.22);
-        const advanceProfitTax = Math.round((advancePayment - advanceVAT) * 0.25);
-        
-        const advanceRow = document.createElement('tr');
-        advanceRow.className = 'advance-row';
-        advanceRow.innerHTML = `
-            <td class="payment-number">Аванс</td>
-            <td>${today.toLocaleDateString('ru-RU')}</td>
-            <td>${formatNumber(advancePayment)} ₽</td>
-            <td>${formatNumber(advanceVAT)} ₽</td>
-            <td>${formatNumber(advanceProfitTax)} ₽</td>
-        `;
-        paymentScheduleBody.appendChild(advanceRow);
-        
-        totalPayments += advancePayment;
-        totalVAT += advanceVAT;
-        totalProfitTax += advanceProfitTax;
-    }
-    
-    // Если сумма лизинга больше 0, добавляем ежемесячные платежи (номера 1, 2, 3... до 36)
-    if (leasingAmount > 0) {
-        // Процентная ставка с наценкой (21.5%)
-        const annualRate = baseRate + markupPercent;
-        const monthlyRate = annualRate / 12 / 100;
-        
-        // Аннуитетный платеж
-        const monthlyPaymentValue = leasingAmount * (monthlyRate * Math.pow(1 + monthlyRate, termValue)) / (Math.pow(1 + monthlyRate, termValue) - 1);
-        
-        // Расчет НДС и налога на прибыль для каждого ежемесячного платежа
-        const monthlyVAT = Math.round(monthlyPaymentValue * 0.22 / 1.22);
-        const monthlyProfitTax = Math.round((monthlyPaymentValue - monthlyVAT) * 0.25);
-        
-        // Добавление ежемесячных платежей (номера 1, 2, 3... до termValue)
-        for (let i = 1; i <= termValue; i++) {
-            // Расчет даты платежа
-            const paymentDate = new Date(today);
-            paymentDate.setMonth(paymentDate.getMonth() + i);
+        function generatePaymentSchedule() {
+            const advancePercentValue = parseFloat(advanceSlider.value);
+            const termValue = parseInt(termSlider.value);
+            const redemptionPercentValue = parseFloat(redemptionSlider.value);
             
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td class="payment-number">${i}</td>
-                <td>${paymentDate.toLocaleDateString('ru-RU')}</td>
-                <td>${formatNumber(monthlyPaymentValue)} ₽</td>
-                <td>${formatNumber(monthlyVAT)} ₽</td>
-                <td>${formatNumber(monthlyProfitTax)} ₽</td>
-            `;
-            paymentScheduleBody.appendChild(row);
+            const advancePayment = equipmentCost * advancePercentValue / 100;
+            const redemptionPayment = equipmentCost * redemptionPercentValue / 100;
+            const leasingAmount = equipmentCost - advancePayment;
             
-            totalPayments += monthlyPaymentValue;
-            totalVAT += monthlyVAT;
-            totalProfitTax += monthlyProfitTax;
+            // Очистка таблицы
+            paymentScheduleBody.innerHTML = '';
+            
+            let totalPayments = 0;
+            let totalVAT = 0;
+            let totalProfitTax = 0;
+            const today = new Date();
+            
+            // Если стоимость техники 0
+            if (equipmentCost === 0) {
+                scheduleTotalPayment.textContent = '0 ₽';
+                scheduleTotalVAT.textContent = '0 ₽';
+                scheduleTotalProfitTax.textContent = '0 ₽';
+                return;
+            }
+            
+            // Добавление авансового платежа (ПЕРВЫЙ - с названием "Аванс")
+            if (advancePayment > 0) {
+                const advanceVAT = Math.round(advancePayment * 0.22 / 1.22);
+                const advanceProfitTax = Math.round((advancePayment - advanceVAT) * 0.25);
+                
+                const advanceRow = document.createElement('tr');
+                advanceRow.className = 'advance-row';
+                advanceRow.innerHTML = `
+                    <td class="payment-number">Аванс</td>
+                    <td>${today.toLocaleDateString('ru-RU')}</td>
+                    <td>${formatNumber(advancePayment)} ₽</td>
+                    <td>${formatNumber(advanceVAT)} ₽</td>
+                    <td>${formatNumber(advanceProfitTax)} ₽</td>
+                `;
+                paymentScheduleBody.appendChild(advanceRow);
+                
+                totalPayments += advancePayment;
+                totalVAT += advanceVAT;
+                totalProfitTax += advanceProfitTax;
+            }
+            
+            // Если сумма лизинга больше 0, добавляем ежемесячные платежи (номера 1, 2, 3... до 36)
+            if (leasingAmount > 0) {
+                // Процентная ставка с наценкой (31%)
+                const annualRate = baseRate + markupPercent;
+                const monthlyRate = annualRate / 12 / 100;
+                
+                // Аннуитетный платеж
+                const monthlyPaymentValue = leasingAmount * (monthlyRate * Math.pow(1 + monthlyRate, termValue)) / (Math.pow(1 + monthlyRate, termValue) - 1);
+                
+                // Расчет НДС и налога на прибыль для каждого ежемесячного платежа
+                const monthlyVAT = Math.round(monthlyPaymentValue * 0.22 / 1.22);
+                const monthlyProfitTax = Math.round((monthlyPaymentValue - monthlyVAT) * 0.25);
+                
+                // Добавление ежемесячных платежей (номера 1, 2, 3... до termValue)
+                for (let i = 1; i <= termValue; i++) {
+                    // Расчет даты платежа
+                    const paymentDate = new Date(today);
+                    paymentDate.setMonth(paymentDate.getMonth() + i);
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="payment-number">${i}</td>
+                        <td>${paymentDate.toLocaleDateString('ru-RU')}</td>
+                        <td>${formatNumber(monthlyPaymentValue)} ₽</td>
+                        <td>${formatNumber(monthlyVAT)} ₽</td>
+                        <td>${formatNumber(monthlyProfitTax)} ₽</td>
+                    `;
+                    paymentScheduleBody.appendChild(row);
+                    
+                    totalPayments += monthlyPaymentValue;
+                    totalVAT += monthlyVAT;
+                    totalProfitTax += monthlyProfitTax;
+                }
+            }
+            
+            // Добавление выкупного платежа (ПОСЛЕДНИЙ - с названием "Выкупной платеж")
+            if (redemptionPayment > 0) {
+                const redemptionDate = new Date(today);
+                redemptionDate.setMonth(redemptionDate.getMonth() + termValue + 1);
+                
+                const redemptionVAT = Math.round(redemptionPayment * 0.22 / 1.22);
+                const redemptionProfitTax = Math.round((redemptionPayment - redemptionVAT) * 0.25);
+                
+                const redemptionRow = document.createElement('tr');
+                redemptionRow.className = 'redemption-row';
+                redemptionRow.innerHTML = `
+                    <td class="payment-number">Выкупной<br>платеж</td>
+                    <td>${redemptionDate.toLocaleDateString('ru-RU')}</td>
+                    <td>${formatNumber(redemptionPayment)} ₽</td>
+                    <td>${formatNumber(redemptionVAT)} ₽</td>
+                    <td>${formatNumber(redemptionProfitTax)} ₽</td>
+                `;
+                paymentScheduleBody.appendChild(redemptionRow);
+                
+                totalPayments += redemptionPayment;
+                totalVAT += redemptionVAT;
+                totalProfitTax += redemptionProfitTax;
+            }
+            
+            // Обновление итоговых сумм
+            scheduleTotalPayment.textContent = `${formatNumber(totalPayments)} ₽`;
+            scheduleTotalVAT.textContent = `${formatNumber(totalVAT)} ₽`;
+            scheduleTotalProfitTax.textContent = `${formatNumber(totalProfitTax)} ₽`;
         }
-    }
-    
-    // Добавление выкупного платежа (ПОСЛЕДНИЙ - с названием "Выкупной платеж")
-    if (redemptionPayment > 0) {
-        const redemptionDate = new Date(today);
-        redemptionDate.setMonth(redemptionDate.getMonth() + termValue + 1);
-        
-        const redemptionVAT = Math.round(redemptionPayment * 0.22 / 1.22);
-        const redemptionProfitTax = Math.round((redemptionPayment - redemptionVAT) * 0.25);
-        
-        const redemptionRow = document.createElement('tr');
-        redemptionRow.className = 'redemption-row';
-        redemptionRow.innerHTML = `
-            <td class="payment-number">Выкупной<br>платеж</td>
-            <td>${redemptionDate.toLocaleDateString('ru-RU')}</td>
-            <td>${formatNumber(redemptionPayment)} ₽</td>
-            <td>${formatNumber(redemptionVAT)} ₽</td>
-            <td>${formatNumber(redemptionProfitTax)} ₽</td>
-        `;
-        paymentScheduleBody.appendChild(redemptionRow);
-        
-        totalPayments += redemptionPayment;
-        totalVAT += redemptionVAT;
-        totalProfitTax += redemptionProfitTax;
-    }
-    
-    // Обновление итоговых сумм
-    scheduleTotalPayment.textContent = `${formatNumber(totalPayments)} ₽`;
-    scheduleTotalVAT.textContent = `${formatNumber(totalVAT)} ₽`;
-    scheduleTotalProfitTax.textContent = `${formatNumber(totalProfitTax)} ₽`;
-}
         
         // Функция печати графика платежей (обновленная)
         function printSchedule() {
@@ -1745,6 +1843,9 @@ function generatePaymentSchedule() {
         
         // Инициализация
         function init() {
+            // Активация умной защиты (только для десктопов)
+            setupSmartProtection();
+            
             // Настройка обработчиков
             priceSlider.addEventListener('input', function() {
                 const value = parseInt(this.value);
@@ -1786,7 +1887,7 @@ function generatePaymentSchedule() {
             updateRedemptionValue();
             calculateLeasing();
             
-            console.log('Калькулятор инициализирован с обновленными формулами и графиком платежей');
+            console.log('Калькулятор инициализирован с умной защитой');
         }
         
         // Запуск инициализации при загрузке
