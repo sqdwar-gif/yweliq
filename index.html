@@ -24,7 +24,7 @@
             width: 0 !important;
         }
         
-        /* Верхние иконки - ОБНОВЛЕНО: синий Telegram и зеленый телефон */
+        /* Верхние иконки - синий Telegram и зеленый телефон */
         .header-icons {
             position: absolute;
             right: 20px;
@@ -117,35 +117,23 @@
         .input-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
         .input-header label { font-weight: 600; color: #2d3748; font-size: 0.9rem; }
         
-        /* Убираем синий выделенный текст - делаем простой */
-        .input-header .value-container { 
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            gap: 2px;
-        }
-        .input-header .value { 
-            font-weight: 600;
-            color: #4a5568;
-            background: transparent;
-            padding: 2px 0;
-            border-radius: 0;
-            font-size: 0.9rem; 
-            min-width: auto;
-            text-align: right;
-            min-height: auto;
-        }
-        .input-header .value-rub { 
-            font-weight: 500;
-            color: #718096;
-            font-size: 0.7rem;
-            text-align: right;
-            padding: 0;
+        /* УБИРАЕМ дублирующую сумму в правом углу для стоимости техники */
+        .price-input-container {
+            margin-top: 8px;
         }
         
         .range-slider { width: 100%; height: 8px; -webkit-appearance: none; background: #cbd5e0; border-radius: 5px; outline: none; margin-bottom: 5px; }
         .range-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; background: #2c5282; border-radius: 50%; cursor: pointer; border: 3px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
-        .range-limits { display: flex; justify-content: space-between; margin-top: 5px; font-size: 0.75rem; color: #718096; }
+        
+        /* УБИРАЕМ отображение диапазона 0-100 млн для стоимости техники */
+        .range-limits { 
+            display: flex; 
+            justify-content: space-between; 
+            margin-top: 5px; 
+            font-size: 0.75rem; 
+            color: #718096;
+            /* Скрываем для стоимости техники, оставляем для других полей */
+        }
         
         .input-with-controls { display: flex; align-items: center; gap: 12px; }
         .money-input { 
@@ -175,6 +163,34 @@
             font-size: 0.9rem;
         }
         
+        /* Для процентов - сохраняем отображение */
+        .percent-input-container {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .percent-display {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .percent-display .value { 
+            font-weight: 600;
+            color: #4a5568;
+            font-size: 0.9rem; 
+            text-align: right;
+        }
+        
+        .percent-display .value-rub { 
+            font-weight: 500;
+            color: #718096;
+            font-size: 0.7rem;
+            text-align: right;
+            padding: 0;
+        }
+        
         /* Уменьшаем шрифты в результатах */
         .result-box { background: white; border-radius: 12px; padding: 16px; margin-bottom: 16px; border-left: 5px solid #2c5282; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.03); }
         .result-main { border-left-color: #e67e22; background: linear-gradient(to right, #fffaf0, #fff5e6); }
@@ -201,28 +217,13 @@
             box-shadow: 0 0 0 3px rgba(44, 82, 130, 0.1); 
         }
         
-        /* ИСПРАВЛЕНО: Поле телефона - выравнивание цифры 7 */
-        .phone-input-container {
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
-        .phone-prefix {
-            position: absolute;
-            left: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #4a5568;
-            font-size: 0.95rem;
-            font-weight: 500;
-            pointer-events: none;
-            display: flex;
-            align-items: center;
-            height: 100%;
-        }
+        /* СТАНДАРТНОЕ поле телефона (исправлено выравнивание) */
         .phone-input {
-            padding-left: 30px !important; /* Уменьшили отступ для префикса */
             width: 100%;
+            padding: 10px 12px !important;
+            border: 1px solid #cbd5e0;
+            border-radius: 10px;
+            font-size: 0.95rem;
         }
         
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
@@ -322,7 +323,7 @@
             color: #1a3a5f;
         }
         
-        /* ОБНОВЛЕНО: 3 кнопки в форме - Telegram, Email, Звонок */
+        /* 3 кнопки в форме - Telegram, Email, Звонок */
         .form-actions {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
@@ -414,6 +415,48 @@
         .open-schedule-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(230, 126, 34, 0.3);
+        }
+        
+        /* Кнопки управления с шагом 0.1% */
+        .percent-controls {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 8px;
+        }
+        
+        .percent-btn {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            border: 1px solid #cbd5e0;
+            background: white;
+            color: #4a5568;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+        
+        .percent-btn:hover {
+            background: #f0f7ff;
+            border-color: #2c5282;
+            color: #2c5282;
+        }
+        
+        .percent-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .percent-value-display {
+            flex-grow: 1;
+            text-align: center;
+            font-weight: 600;
+            color: #1a3a5f;
+            font-size: 0.8rem;
         }
         
         .modal-overlay {
@@ -603,117 +646,6 @@
             font-weight: 600;
             color: #2d3748;
         }
-        
-        .advance-controls {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            margin-top: 8px;
-        }
-        .advance-btn {
-            width: 22px;
-            height: 22px;
-            border-radius: 50%;
-            border: 1px solid #cbd5e0;
-            background: white;
-            color: #4a5568;
-            font-size: 0.75rem;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s ease;
-        }
-        .advance-btn:hover {
-            background: #f0f7ff;
-            border-color: #2c5282;
-            color: #2c5282;
-        }
-        .advance-btn:active {
-            transform: scale(0.95);
-        }
-        .advance-value-display {
-            flex-grow: 1;
-            text-align: center;
-            font-weight: 600;
-            color: #1a3a5f;
-            font-size: 0.8rem;
-        }
-        
-        .term-controls {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            margin-top: 8px;
-        }
-        .term-btn {
-            width: 22px;
-            height: 22px;
-            border-radius: 50%;
-            border: 1px solid #cbd5e0;
-            background: white;
-            color: #4a5568;
-            font-size: 0.75rem;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s ease;
-        }
-        .term-btn:hover {
-            background: #f0f7ff;
-            border-color: #2c5282;
-            color: #2c5282;
-        }
-        .term-btn:active {
-            transform: scale(0.95);
-        }
-        .term-value-display {
-            flex-grow: 1;
-            text-align: center;
-            font-weight: 600;
-            color: #1a3a5f;
-            font-size: 0.8rem;
-        }
-        
-        .redemption-controls {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            margin-top: 8px;
-        }
-        .redemption-btn {
-            width: 22px;
-            height: 22px;
-            border-radius: 50%;
-            border: 1px solid #cbd5e0;
-            background: white;
-            color: #4a5568;
-            font-size: 0.75rem;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s ease;
-        }
-        .redemption-btn:hover {
-            background: #f0f7ff;
-            border-color: #2c5282;
-            color: #2c5282;
-        }
-        .redemption-btn:active {
-            transform: scale(0.95);
-        }
-        .redemption-value-display {
-            flex-grow: 1;
-            text-align: center;
-            font-weight: 600;
-            color: #1a3a5f;
-            font-size: 0.8rem;
-        }
     </style>
 </head>
 <body>
@@ -727,7 +659,7 @@
             <h1><i class="fas fa-calculator"></i> Лизинговый калькулятор</h1>
             <p>Рассчитайте график платежей и налоговую экономию для вашего бизнеса</p>
             
-            <!-- Верхние иконки - ОБНОВЛЕНО: синий Telegram и зеленый телефон -->
+            <!-- Верхние иконки - синий Telegram и зеленый телефон -->
             <div class="header-icons">
                 <a href="https://t.me/YWeliQ" class="header-icon-link telegram-icon" target="_blank" title="Написать в Telegram">
                     <i class="fab fa-telegram-plane"></i>
@@ -742,71 +674,83 @@
             <section class="input-section">
                 <h2 class="section-title"><i class="fas fa-sliders-h"></i> Параметры лизинга</h2>
                 
+                <!-- СТОИМОСТЬ ТЕХНИКИ - упрощенный вид -->
                 <div class="input-group">
                     <div class="input-header">
                         <label for="priceInput">Стоимость техники</label>
-                        <div class="value-container">
-                            <span class="value" id="priceValue">1 500 000 ₽</span>
-                        </div>
+                        <!-- УБИРАЕМ дублирующую сумму справа -->
                     </div>
                     <div class="input-with-controls">
                         <input type="text" id="priceInput" class="money-input" value="1 500 000" data-max="100 000 000" autocomplete="off">
                         <span class="input-suffix">₽</span>
                     </div>
-                    <div class="range-limits"><span>0 ₽</span><span>100 000 000 ₽</span></div>
+                    <!-- УБИРАЕМ диапазон 0-100 млн (оставляем только слайдер) -->
+                    <input type="range" id="priceSlider" class="range-slider" min="0" max="100000000" step="100000" value="1500000" style="margin-top: 10px;">
                 </div>
                 
+                <!-- ПЕРВОНАЧАЛЬНЫЙ ВЗНОС -->
                 <div class="input-group">
-                    <div class="input-header">
-                        <label for="advanceSlider">Первоначальный взнос</label>
-                        <div class="value-container">
-                            <span class="value" id="advanceValue">20%</span>
-                            <span class="value-rub" id="advanceRub">300 000 ₽</span>
+                    <div class="percent-input-container">
+                        <div class="percent-display">
+                            <label for="advanceSlider">Первоначальный взнос</label>
+                            <div class="value-container">
+                                <span class="value" id="advanceValue">20%</span>
+                                <span class="value-rub" id="advanceRub">300 000 ₽</span>
+                            </div>
                         </div>
-                    </div>
-                    <input type="range" id="advanceSlider" class="range-slider" min="5" max="50" step="0.01" value="20">
-                    <div class="range-limits"><span>5%</span><span>50%</span></div>
-                    
-                    <div class="advance-controls">
-                        <button class="advance-btn" id="decreaseAdvanceBtn">-</button>
-                        <div class="advance-value-display" id="advancePercentDisplay">20%</div>
-                        <button class="advance-btn" id="increaseAdvanceBtn">+</button>
-                    </div>
-                </div>
-                
-                <div class="input-group">
-                    <div class="input-header">
-                        <label for="termSlider">Срок договора</label>
-                        <div class="value-container">
-                            <span class="value" id="termValue">36</span>
-                            <span class="value-rub">месяцев</span>
+                        <input type="range" id="advanceSlider" class="range-slider" min="5" max="50" step="0.1" value="20">
+                        <div class="range-limits"><span>5%</span><span>50%</span></div>
+                        
+                        <!-- Кнопки управления с шагом 0.1% -->
+                        <div class="percent-controls">
+                            <button class="percent-btn" id="decreaseAdvanceBtn">-</button>
+                            <div class="percent-value-display" id="advancePercentDisplay">20.0%</div>
+                            <button class="percent-btn" id="increaseAdvanceBtn">+</button>
                         </div>
-                    </div>
-                    <input type="range" id="termSlider" class="range-slider" min="6" max="60" value="36">
-                    <div class="range-limits"><span>6 мес.</span><span>60 мес.</span></div>
-                    
-                    <div class="term-controls">
-                        <button class="term-btn" id="decreaseTermBtn">-</button>
-                        <div class="term-value-display" id="termDisplay">36 мес.</div>
-                        <button class="term-btn" id="increaseTermBtn">+</button>
                     </div>
                 </div>
                 
+                <!-- СРОК ДОГОВОРА -->
                 <div class="input-group">
-                    <div class="input-header">
-                        <label for="redemptionSlider">Выкупной платеж</label>
-                        <div class="value-container">
-                            <span class="value" id="redemptionValue">10%</span>
-                            <span class="value-rub" id="redemptionRub">150 000 ₽</span>
+                    <div class="percent-input-container">
+                        <div class="percent-display">
+                            <label for="termSlider">Срок договора</label>
+                            <div class="value-container">
+                                <span class="value" id="termValue">36</span>
+                                <span class="value-rub">месяцев</span>
+                            </div>
+                        </div>
+                        <input type="range" id="termSlider" class="range-slider" min="6" max="60" value="36">
+                        <div class="range-limits"><span>6 мес.</span><span>60 мес.</span></div>
+                        
+                        <!-- Кнопки управления с шагом 6 месяцев -->
+                        <div class="percent-controls">
+                            <button class="percent-btn" id="decreaseTermBtn">-</button>
+                            <div class="percent-value-display" id="termDisplay">36 мес.</div>
+                            <button class="percent-btn" id="increaseTermBtn">+</button>
                         </div>
                     </div>
-                    <input type="range" id="redemptionSlider" class="range-slider" min="0" max="15" step="0.01" value="10">
-                    <div class="range-limits"><span>0%</span><span>15%</span></div>
-                    
-                    <div class="redemption-controls">
-                        <button class="redemption-btn" id="decreaseRedemptionBtn">-</button>
-                        <div class="redemption-value-display" id="redemptionPercentDisplay">10%</div>
-                        <button class="redemption-btn" id="increaseRedemptionBtn">+</button>
+                </div>
+                
+                <!-- ВЫКУПНОЙ ПЛАТЕЖ -->
+                <div class="input-group">
+                    <div class="percent-input-container">
+                        <div class="percent-display">
+                            <label for="redemptionSlider">Выкупной платеж</label>
+                            <div class="value-container">
+                                <span class="value" id="redemptionValue">10%</span>
+                                <span class="value-rub" id="redemptionRub">150 000 ₽</span>
+                            </div>
+                        </div>
+                        <input type="range" id="redemptionSlider" class="range-slider" min="0" max="15" step="0.1" value="10">
+                        <div class="range-limits"><span>0%</span><span>15%</span></div>
+                        
+                        <!-- Кнопки управления с шагом 0.1% -->
+                        <div class="percent-controls">
+                            <button class="percent-btn" id="decreaseRedemptionBtn">-</button>
+                            <div class="percent-value-display" id="redemptionPercentDisplay">10.0%</div>
+                            <button class="percent-btn" id="increaseRedemptionBtn">+</button>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -854,19 +798,15 @@
                     <!-- Скрытое поле для времени заполнения -->
                     <input type="hidden" id="formStartTime" value="">
                     
-                    <!-- УДАЛЕНО: поле для email клиента -->
-                    
                     <div class="form-group">
                         <label for="name">Ваше имя <span style="color: #e53e3e;">*</span></label>
                         <input type="text" id="name" placeholder="Иван Иванов" required>
                     </div>
                     
+                    <!-- СТАНДАРТНОЕ поле телефона -->
                     <div class="form-group">
                         <label for="phone">Номер телефона <span style="color: #e53e3e;">*</span></label>
-                        <div class="phone-input-container">
-                            <span class="phone-prefix" id="phonePrefix">+7</span>
-                            <input type="tel" id="phone" class="form-group input phone-input" placeholder="999 123-45-67" required>
-                        </div>
+                        <input type="tel" id="phone" class="phone-input" placeholder="+7 (999) 123-45-67" required>
                     </div>
                     
                     <div class="form-group">
@@ -885,7 +825,7 @@
                         </div>
                     </div>
                     
-                    <!-- ОБНОВЛЕНО: 3 кнопки - Telegram, Email, Звонок -->
+                    <!-- 3 кнопки - Telegram, Email, Звонок -->
                     <div class="form-actions">
                         <button class="form-action-btn telegram-form-btn" id="sendToTelegramBtn">
                             <i class="fab fa-telegram-plane"></i> Telegram
@@ -1058,7 +998,7 @@
 
         // Получаем элементы
         const priceInput = document.getElementById('priceInput');
-        const priceValue = document.getElementById('priceValue');
+        const priceSlider = document.getElementById('priceSlider');
         
         const advanceSlider = document.getElementById('advanceSlider');
         const advanceValue = document.getElementById('advanceValue');
@@ -1103,7 +1043,6 @@
         const copySuccess = document.getElementById('copySuccess');
         
         const phoneInput = document.getElementById('phone');
-        const phonePrefix = document.getElementById('phonePrefix');
         const privacyAgreement = document.getElementById('privacyAgreement');
         const managerEmail = document.getElementById('managerEmail').value;
 
@@ -1131,28 +1070,22 @@
             return parseInt(formatted.replace(/\s/g, '')) || 0;
         }
 
-        // ИСПРАВЛЕНА: Маска для телефона с правильным выравниванием
-        function formatPhoneInput(value) {
-            let x = value.replace(/\D/g, '').match(/(\d{0,1})(\d{0,3})(\d{0,3})(\d{0,2})(\d{0,2})/);
+        // Маска для телефона - стандартное поле
+        function setupPhoneMask() {
+            phoneInput.addEventListener('input', function(e) {
+                let x = e.target.value.replace(/\D/g, '').match(/(\d{0,1})(\d{0,3})(\d{0,3})(\d{0,2})(\d{0,2})/);
+                e.target.value = !x[2] ? x[1] : '+7 (' + x[2] + ') ' + x[3] + (x[4] ? '-' + x[4] : '') + (x[5] ? '-' + x[5] : '');
+            });
             
-            if (!x[2]) {
-                // Только префикс страны
-                return '';
-            } else if (x[2] && !x[3]) {
-                // Код оператора
-                phonePrefix.textContent = '+7 ' + x[2];
-                return '';
-            } else if (x[2] && x[3] && !x[4]) {
-                // Первые 3 цифры номера
-                phonePrefix.textContent = '+7 ' + x[2];
-                return x[3];
-            } else if (x[2] && x[3] && x[4] && !x[5]) {
-                phonePrefix.textContent = '+7 ' + x[2];
-                return x[3] + '-' + x[4];
-            } else {
-                phonePrefix.textContent = '+7 ' + x[2];
-                return x[3] + '-' + x[4] + '-' + x[5];
-            }
+            // Устанавливаем начальное значение
+            phoneInput.value = '+7 (';
+            
+            // Фокус на поле телефона
+            phoneInput.addEventListener('focus', function() {
+                if (this.value === '+7 (') {
+                    this.setSelectionRange(4, 4);
+                }
+            });
         }
 
         // Функция для расчета НДС
@@ -1169,11 +1102,13 @@
         function updateAmountDisplays() {
             const carPrice = parseFormattedNumber(priceInput.value);
             
+            // Обновление аванса в рублях
             const advancePercent = parseFloat(advanceSlider.value);
             const advanceAmount = Math.round(carPrice * advancePercent / 100);
             advanceRub.textContent = formatCurrency(advanceAmount);
             advancePercentDisplay.textContent = advancePercent.toFixed(1) + '%';
             
+            // Обновление выкупного платежа в рублях
             let redemptionPercent = parseFloat(redemptionSlider.value);
             if (redemptionPercent > 15) {
                 redemptionPercent = 15;
@@ -1183,6 +1118,7 @@
             redemptionRub.textContent = formatCurrency(redemptionAmount);
             redemptionPercentDisplay.textContent = redemptionPercent.toFixed(1) + '%';
             
+            // Обновление отображения срока
             const termMonths = parseFloat(termSlider.value);
             termDisplay.textContent = termMonths + ' мес.';
         }
@@ -1346,7 +1282,7 @@
             profitTaxSaveEl.textContent = carPrice > 0 ? formatCurrency(profitTaxSavings) : "0 ₽";
             totalAmountEl.textContent = formatCurrency(totalContractAmount);
             
-            priceValue.textContent = formatCurrency(carPrice);
+            // Обновляем значения процентов
             advanceValue.textContent = advancePercent.toFixed(1) + '%';
             redemptionValue.textContent = redemptionPercent.toFixed(1) + '%';
             termValue.textContent = termMonths;
@@ -1628,9 +1564,6 @@
                 return;
             }
             
-            // Формируем полный телефон
-            const fullPhone = '+7 ' + phone;
-            
             // Формируем сообщение для Telegram
             const message = `Здравствуйте! Я хочу рассчитать лизинг:
 
@@ -1647,7 +1580,7 @@
 
 👤 *Мои данные:*
 • Имя: ${name}
-• Телефон: ${fullPhone}
+• Телефон: ${phone}
 ${inn ? `• ИНН: ${inn}` : ''}
 
 📅 *Детали запроса:*
@@ -1706,9 +1639,6 @@ ${inn ? `• ИНН: ${inn}` : ''}
                 return;
             }
             
-            // Формируем полный телефон
-            const fullPhone = '+7 ' + phone;
-            
             // Формируем тему письма
             const subject = encodeURIComponent(`Расчет лизинга от ${name}`);
             
@@ -1717,7 +1647,7 @@ ${inn ? `• ИНН: ${inn}` : ''}
 
 📋 КОНТАКТНЫЕ ДАННЫЕ:
 • Имя: ${name}
-• Телефон: ${fullPhone}
+• Телефон: ${phone}
 ${inn ? `• ИНН организации: ${inn}` : ''}
 
 📊 ПАРАМЕТРЫ РАСЧЕТА:
@@ -1756,79 +1686,102 @@ ${inn ? `• ИНН организации: ${inn}` : ''}
             alert('Открываю почтовый клиент... Если письмо не открылось автоматически, пожалуйста, отправьте email на yweliq@yandex.ru с данными расчета.');
         }
 
+        // Функция для изменения значения на 0.1%
+        function adjustPercentValue(sliderId, change, min, max) {
+            const slider = document.getElementById(sliderId);
+            let currentValue = parseFloat(slider.value);
+            let newValue = currentValue + change;
+            
+            // Ограничиваем значение
+            if (newValue < min) newValue = min;
+            if (newValue > max) newValue = max;
+            
+            // Округляем до одного знака после запятой
+            newValue = Math.round(newValue * 10) / 10;
+            
+            // Устанавливаем новое значение
+            slider.value = newValue;
+            
+            // Обновляем отображение
+            slider.dispatchEvent(new Event('input'));
+        }
+
         // Настройка обработчиков событий
         function setupEventListeners() {
             // Устанавливаем время начала заполнения формы
             document.getElementById('formStartTime').value = Date.now();
             
-            // Обработчик для ввода стоимости техники
+            // Связываем поле ввода и слайдер для стоимости техники
             priceInput.addEventListener('input', function(e) {
                 this.value = formatMoneyInput(this.value);
+                const value = parseFormattedNumber(this.value);
+                priceSlider.value = value;
+                calculateLeasing();
+            });
+            
+            priceSlider.addEventListener('input', function() {
+                const value = parseInt(this.value);
+                priceInput.value = formatNumber(value);
                 calculateLeasing();
             });
             
             priceInput.addEventListener('blur', function() {
                 if (!this.value) {
                     this.value = '0';
+                    priceSlider.value = 0;
                 }
                 calculateLeasing();
             });
 
-            // Обработчики для аванса
+            // Обработчики для аванса (шаг 0.1%)
             advanceSlider.addEventListener('input', function() {
                 const percent = parseFloat(this.value);
                 advanceValue.textContent = percent.toFixed(1) + '%';
+                advancePercentDisplay.textContent = percent.toFixed(1) + '%';
                 updateAmountDisplays();
                 calculateLeasing();
             });
 
-            // Кнопки управления авансом
+            // Кнопки управления авансом с шагом 0.1%
             decreaseAdvanceBtn.addEventListener('click', function() {
-                let currentValue = parseFloat(advanceSlider.value);
-                if (currentValue > 5) {
-                    currentValue = Math.max(5, currentValue - 1);
-                    advanceSlider.value = currentValue;
-                    advanceSlider.dispatchEvent(new Event('input'));
-                }
+                adjustPercentValue('advanceSlider', -0.1, 5, 50);
             });
 
             increaseAdvanceBtn.addEventListener('click', function() {
-                let currentValue = parseFloat(advanceSlider.value);
-                if (currentValue < 50) {
-                    currentValue = Math.min(50, currentValue + 1);
-                    advanceSlider.value = currentValue;
-                    advanceSlider.dispatchEvent(new Event('input'));
-                }
+                adjustPercentValue('advanceSlider', 0.1, 5, 50);
             });
 
             // Обработчики для срока
             termSlider.addEventListener('input', function() {
                 const term = parseFloat(this.value);
                 termValue.textContent = term;
+                termDisplay.textContent = term + ' мес.';
                 updateAmountDisplays();
                 calculateLeasing();
             });
 
-            // Кнопки управления сроком
+            // Кнопки управления сроком с шагом 6 месяцев
             decreaseTermBtn.addEventListener('click', function() {
-                let currentValue = parseFloat(termSlider.value);
+                const slider = document.getElementById('termSlider');
+                let currentValue = parseFloat(slider.value);
                 if (currentValue > 6) {
                     currentValue = Math.max(6, currentValue - 6);
-                    termSlider.value = currentValue;
-                    termSlider.dispatchEvent(new Event('input'));
+                    slider.value = currentValue;
+                    slider.dispatchEvent(new Event('input'));
                 }
             });
 
             increaseTermBtn.addEventListener('click', function() {
-                let currentValue = parseFloat(termSlider.value);
+                const slider = document.getElementById('termSlider');
+                let currentValue = parseFloat(slider.value);
                 if (currentValue < 60) {
                     currentValue = Math.min(60, currentValue + 6);
-                    termSlider.value = currentValue;
-                    termSlider.dispatchEvent(new Event('input'));
+                    slider.value = currentValue;
+                    slider.dispatchEvent(new Event('input'));
                 }
             });
 
-            // Обработчики для выкупного платежа
+            // Обработчики для выкупного платежа (шаг 0.1%)
             redemptionSlider.addEventListener('input', function() {
                 let percent = parseFloat(this.value);
                 if (percent > 15) {
@@ -1836,40 +1789,22 @@ ${inn ? `• ИНН организации: ${inn}` : ''}
                     this.value = percent;
                 }
                 redemptionValue.textContent = percent.toFixed(1) + '%';
+                redemptionPercentDisplay.textContent = percent.toFixed(1) + '%';
                 updateAmountDisplays();
                 calculateLeasing();
             });
 
-            // Кнопки управления выкупным платежом
+            // Кнопки управления выкупным платежом с шагом 0.1%
             decreaseRedemptionBtn.addEventListener('click', function() {
-                let currentValue = parseFloat(redemptionSlider.value);
-                if (currentValue > 0) {
-                    currentValue = Math.max(0, currentValue - 1);
-                    redemptionSlider.value = currentValue;
-                    redemptionSlider.dispatchEvent(new Event('input'));
-                }
+                adjustPercentValue('redemptionSlider', -0.1, 0, 15);
             });
 
             increaseRedemptionBtn.addEventListener('click', function() {
-                let currentValue = parseFloat(redemptionSlider.value);
-                if (currentValue < 15) {
-                    currentValue = Math.min(15, currentValue + 1);
-                    redemptionSlider.value = currentValue;
-                    redemptionSlider.dispatchEvent(new Event('input'));
-                }
+                adjustPercentValue('redemptionSlider', 0.1, 0, 15);
             });
 
-            // Маска для телефона с правильным выравниванием
-            phoneInput.addEventListener('input', function(e) {
-                this.value = formatPhoneInput(this.value);
-            });
-
-            // Фокус на поле телефона
-            phoneInput.addEventListener('focus', function() {
-                if (!this.value) {
-                    this.value = '';
-                }
-            });
+            // Настраиваем маску для телефона
+            setupPhoneMask();
 
             // Обработчики для кнопок отправки
             sendToTelegramBtn.addEventListener('click', function() {
